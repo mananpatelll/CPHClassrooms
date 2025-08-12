@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Classrooms</title>
+  <style>
+    .tile { border:1px solid #ddd; border-radius:12px; overflow:hidden; background:#fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,.05); transition: transform .08s ease, box-shadow .08s ease; }
+    .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .tile .ratio { background:#f3f4f6; }
+    .tile-title { font-weight:600; font-size:0.98rem; text-align:center; margin: .5rem 0 0; }
+    .tile-sub { font-size:.8rem; color:#6c757d; text-align:center; margin-bottom:.6rem; }
+    .section-title { font-weight:700; text-align:center; font-size:1.5rem; margin: 1.5rem 0 .75rem; }
+    .grid { row-gap: 1rem; }
+    .img-cover { width:100%; height:100%; object-fit:cover; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-md bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="/">CPH Classrooms</a>
+    <!-- optional placeholder for future filters (matches screenshot vibe) -->
+    <div class="ms-auto small text-muted">Filter by:&nbsp;<span class="badge bg-secondary">Buildings</span>&nbsp;
+      <button class="btn btn-sm btn-outline-secondary">Advanced Search</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="section-title">Main Campus</div>
+
+  <div class="row grid">
+    {% for room in classrooms %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+      <a href="{% url 'classroom_detail' room.id %}" class="text-decoration-none text-reset">
+        <div class="tile h-100">
+          <div class="ratio ratio-16x9">
+            {% with p=room.panoramas.all.0 %}
+              {% if p %}
+                <img src="{{ p.preview_url|default:p.image_url }}"
+                     alt="Preview of {{ room.building }} {{ room.room_number }}"
+                     class="img-cover" loading="lazy" decoding="async">
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div class="px-3 pb-2 pt-2">
+            <div class="tile-title">{{ room.building }} {{ room.room_number }}</div>
+            {% if room.summary %}<div class="tile-sub">{{ room.summary }}</div>{% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% empty %}
+      <p>No classrooms yet. Import a dataset.</p>
+    {% endfor %}
+  </div>
+
+  <!-- If you later want another campus section like in the screenshot, duplicate the block:
+  <div class="section-title">Health Science Center Campus</div>
+  <div class="row grid">...</div>
+  -->
+</div>
+</body>
+</html>

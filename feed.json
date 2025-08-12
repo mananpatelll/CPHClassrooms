@@ -1,0 +1,82 @@
+{
+    "classrooms": [
+        {
+            "external_id": "ANDERSON-012",
+            "building": "Anderson Hall",
+            "room_number": "012",
+            "capacity": 36,
+            "summary": "Lecture room with projector and whiteboard.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Ritter Annex 565",
+                "Campus": "Main Campus",
+                "Capacity": "63",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted, lavalier/handheld microphones",
+                "Web Conference Camera": "Ceiling-mounted camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable-height table",
+                "Instructor Chair": "Stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ANDERSON-012-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 15,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 1
+                },
+                {
+                    "external_id": "ANDERSON-012-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -170,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "TYLER-101",
+            "building": "Tyler School of Art",
+            "room_number": "101",
+            "capacity": 24,
+            "summary": "Studio space with flexible seating.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Ritter Annex 565",
+                "Campus": "Main Campus",
+                "Capacity": "63",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted, lavalier/handheld microphones",
+                "Web Conference Camera": "Ceiling-mounted camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable-height table",
+                "Instructor Chair": "Stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "TYLER-101-P1",
+                    "name": "Center",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 0,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 1
+                }
+            ]
+        }
+    ]
+}

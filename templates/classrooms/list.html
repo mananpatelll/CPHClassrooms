@@ -20,15 +20,20 @@
 <nav class="navbar navbar-expand-md bg-light">
   <div class="container">
     <a class="navbar-brand" href="/">CPH Classrooms</a>
-    <!-- optional placeholder for future filters (matches screenshot vibe) -->
-    <div class="ms-auto small text-muted">Filter by:&nbsp;<span class="badge bg-secondary">Buildings</span>&nbsp;
-      <button class="btn btn-sm btn-outline-secondary">Advanced Search</button>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Buildings</a>
+        </li>
+      </ul>
     </div>
   </div>
 </nav>
 
+
 <div class="container my-4">
-  <div class="section-title">Main Campus</div>
+  <div class="section-title"><h1>{{ building_name|default:"All Classrooms" }}</h1> <!-- New heading -->
+</div>
 
   <div class="row grid">
     {% for room in classrooms %}

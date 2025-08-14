@@ -1,6 +1,446 @@
 {
     "classrooms": [
         {
+            "external_id": "WACHMAN-101",
+            "building": "Wachman Hall",
+            "room_number": "101",
+            "capacity": 40,
+            "summary": "Lecture hall with dual projectors and whiteboard.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Wachman Hall 101",
+                "Campus": "Main Campus",
+                "Capacity": "40",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted microphone",
+                "Web Conference Camera": "Rear wall camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable-height podium",
+                "Instructor Chair": "Ergonomic chair",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "WACHMAN-101-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 10,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 1
+                },
+                {
+                    "external_id": "WACHMAN-101-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -170,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "WACHMAN-202",
+            "building": "Wachman Hall",
+            "room_number": "202",
+            "capacity": 35,
+            "summary": "Medium-sized lecture room with smartboard.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Wachman Hall 202",
+                "Campus": "Main Campus",
+                "Capacity": "35",
+                "Voice Amplification": "No",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Lavalier microphones",
+                "Web Conference Camera": "Front-facing camera",
+                "AppleTV": "No",
+                "Instructor Table": "Fixed-height desk",
+                "Instructor Chair": "Standard chair",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "WACHMAN-202-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 20,
+                    "pitch": 0,
+                    "hfov": 90,
+                    "order": 1
+                },
+                {
+                    "external_id": "WACHMAN-202-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -160,
+                    "pitch": 0,
+                    "hfov": 90,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "WACHMAN-305",
+            "building": "Wachman Hall",
+            "room_number": "305",
+            "capacity": 50,
+            "summary": "Large classroom with tiered seating.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Wachman Hall 305",
+                "Campus": "Main Campus",
+                "Capacity": "50",
+                "Voice Amplification": "Yes",
+                "Class Capture": "No",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-array microphones",
+                "Web Conference Camera": "Auto-tracking camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Height-adjustable podium",
+                "Instructor Chair": "Stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "WACHMAN-305-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 5,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 1
+                },
+                {
+                    "external_id": "WACHMAN-305-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -175,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "WACHMAN-412",
+            "building": "Wachman Hall",
+            "room_number": "412",
+            "capacity": 28,
+            "summary": "Small seminar room with large display screen.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Wachman Hall 412",
+                "Campus": "Main Campus",
+                "Capacity": "28",
+                "Voice Amplification": "No",
+                "Class Capture": "No",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Boundary microphones",
+                "Web Conference Camera": "Wall-mounted camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Portable desk",
+                "Instructor Chair": "Standard chair",
+                "Assistive Listening Device": "No"
+            },
+            "panoramas": [
+                {
+                    "external_id": "WACHMAN-412-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 15,
+                    "pitch": 0,
+                    "hfov": 85,
+                    "order": 1
+                },
+                {
+                    "external_id": "WACHMAN-412-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -165,
+                    "pitch": 0,
+                    "hfov": 85,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "WACHMAN-520",
+            "building": "Wachman Hall",
+            "room_number": "520",
+            "capacity": 60,
+            "summary": "Tiered lecture hall with dual screens.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Wachman Hall 520",
+                "Campus": "Main Campus",
+                "Capacity": "60",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Wireless handheld microphones",
+                "Web Conference Camera": "Front and rear cameras",
+                "AppleTV": "Yes",
+                "Instructor Table": "Podium with control panel",
+                "Instructor Chair": "High stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "WACHMAN-520-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 0,
+                    "pitch": 0,
+                    "hfov": 110,
+                    "order": 1
+                },
+                {
+                    "external_id": "WACHMAN-520-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -180,
+                    "pitch": 0,
+                    "hfov": 110,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ALTER-201",
+            "building": "Alter Hall",
+            "room_number": "201",
+            "capacity": 45,
+            "summary": "Lecture room with modern AV setup.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Alter Hall 201",
+                "Campus": "Main Campus",
+                "Capacity": "45",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted microphones",
+                "Web Conference Camera": "Auto-tracking camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable podium",
+                "Instructor Chair": "Ergonomic stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ALTER-201-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 5,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 1
+                },
+                {
+                    "external_id": "ALTER-201-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -175,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ALTER-305",
+            "building": "Alter Hall",
+            "room_number": "305",
+            "capacity": 32,
+            "summary": "Seminar room with wall-mounted displays.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Alter Hall 305",
+                "Campus": "Main Campus",
+                "Capacity": "32",
+                "Voice Amplification": "No",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Boundary microphones",
+                "Web Conference Camera": "Front camera",
+                "AppleTV": "No",
+                "Instructor Table": "Fixed desk",
+                "Instructor Chair": "Standard chair",
+                "Assistive Listening Device": "No"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ALTER-305-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 10,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 1
+                },
+                {
+                    "external_id": "ALTER-305-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -170,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ALTER-410",
+            "building": "Alter Hall",
+            "room_number": "410",
+            "capacity": 50,
+            "summary": "Large conference-style classroom.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Alter Hall 410",
+                "Campus": "Main Campus",
+                "Capacity": "50",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Wireless lavalier microphones",
+                "Web Conference Camera": "Rear wall camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Conference table with controls",
+                "Instructor Chair": "Leather chair",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ALTER-410-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 0,
+                    "pitch": 0,
+                    "hfov": 105,
+                    "order": 1
+                },
+                {
+                    "external_id": "ALTER-410-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -180,
+                    "pitch": 0,
+                    "hfov": 105,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ALTER-515",
+            "building": "Alter Hall",
+            "room_number": "515",
+            "capacity": 36,
+            "summary": "Lecture room with smartboard and AV system.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Alter Hall 515",
+                "Campus": "Main Campus",
+                "Capacity": "36",
+                "Voice Amplification": "Yes",
+                "Class Capture": "No",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted microphone",
+                "Web Conference Camera": "Front-facing camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable desk",
+                "Instructor Chair": "Standard chair",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ALTER-515-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 15,
+                    "pitch": 0,
+                    "hfov": 90,
+                    "order": 1
+                },
+                {
+                    "external_id": "ALTER-515-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -165,
+                    "pitch": 0,
+                    "hfov": 90,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ALTER-620",
+            "building": "Alter Hall",
+            "room_number": "620",
+            "capacity": 42,
+            "summary": "Modern lecture room with touch-enabled displays.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Alter Hall 620",
+                "Campus": "Main Campus",
+                "Capacity": "42",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Lavalier and boundary microphones",
+                "Web Conference Camera": "Front-facing and auto-tracking camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable podium with touchscreen controls",
+                "Instructor Chair": "Ergonomic stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ALTER-620-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 10,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 1
+                },
+                {
+                    "external_id": "ALTER-620-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -170,
+                    "pitch": 0,
+                    "hfov": 100,
+                    "order": 2
+                }
+            ]
+        },
+        {
             "external_id": "ANDERSON-012",
             "building": "Anderson Hall",
             "room_number": "012",
@@ -34,6 +474,50 @@
                 },
                 {
                     "external_id": "ANDERSON-012-P2",
+                    "name": "Back",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": -170,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 2
+                }
+            ]
+        },
+        {
+            "external_id": "ANDERSON-013",
+            "building": "Anderson Hall",
+            "room_number": "013",
+            "capacity": 36,
+            "summary": "Lecture room with projector and whiteboard.",
+            "is_published": true,
+            "attributes": {
+                "Location": "Ritter Annex 565",
+                "Campus": "Main Campus",
+                "Capacity": "63",
+                "Voice Amplification": "Yes",
+                "Class Capture": "Yes",
+                "Web Conference": "Yes",
+                "Web Conference Microphone": "Ceiling-mounted, lavalier/handheld microphones",
+                "Web Conference Camera": "Ceiling-mounted camera",
+                "AppleTV": "Yes",
+                "Instructor Table": "Adjustable-height table",
+                "Instructor Chair": "Stool",
+                "Assistive Listening Device": "Yes"
+            },
+            "panoramas": [
+                {
+                    "external_id": "ANDERSON-013-P1",
+                    "name": "Front",
+                    "image_url": "/media/panos/anderson012.jpg",
+                    "preview_url": "/media/panos/preview.jpeg",
+                    "yaw": 15,
+                    "pitch": 0,
+                    "hfov": 95,
+                    "order": 1
+                },
+                {
+                    "external_id": "ANDERSON-013-P2",
                     "name": "Back",
                     "image_url": "/media/panos/anderson012.jpg",
                     "preview_url": "/media/panos/preview.jpeg",

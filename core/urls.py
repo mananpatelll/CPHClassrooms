@@ -19,13 +19,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.urls import path
-from classrooms.views import classroom_list, classroom_detail
+from classrooms.views import buildings_index, classroom_list_by_building, classroom_detail
 from django.http import HttpResponse
 
 urlpatterns = [
-    path('', classroom_list, name='classroom_list'),
+   # Home now shows buildings:
+    path('', buildings_index, name='home'),
+
+    # Buildings:
+    path('buildings/', buildings_index, name='buildings_index'),
+    path('buildings/<slug:building_slug>/', classroom_list_by_building, name='building_classrooms'),
+
+    # Classrooms (detail stays the same):
     path('classrooms/<int:pk>/', classroom_detail, name='classroom_detail'),
-    path('healthz', lambda r: HttpResponse("ok")),
     # admin left out on purpose for PoC
 ]
 

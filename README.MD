@@ -1,7 +1,5 @@
 # CPH Classrooms (PoC)
-
-Server-rendered Django app that lists Temple classrooms by building, shows classroom cards with previews, and a detail page with a Pannellum 360° viewer plus a features table.
-
+This project, developed under Temple University's Classroom Technology Department, is designed to provide detailed information about each classroom, manage classroom scheduling, and offer technology support directly through TUportal. The goal is to make these services more accessible for faculty and students while creating a centralized hub for all classroom technology–related resources.
 Tech: Python 3.11, Django 5, Bootstrap 5 (templates), Pannellum (360 viewer). SQLite for dev; Postgres-ready.
 
 ## Quick start

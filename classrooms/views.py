@@ -1,5 +1,7 @@
 # classrooms/views.py
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Prefetch
+from .models import Classroom, Panorama
 from django.http import Http404
 from django.utils.text import slugify
 from .models import Classroom
@@ -17,9 +19,12 @@ def buildings_index(request):
     Home: grid of buildings. Each tile shows a preview image (first room's first pano)
     and the room count. Clicking a tile goes to the classroom list for that building.
     """
+
     rooms = (Classroom.objects
              .filter(is_published=True)
-             .prefetch_related("panoramas")
+             .prefetch_related(
+                 Prefetch("panoramas", queryset=Panorama.objects.order_by("order","id"))
+            )
              .order_by("building", "room_number"))
 
     seen = {}   # slug -> index in tiles
@@ -27,7 +32,7 @@ def buildings_index(request):
     for r in rooms:
         s = slugify(r.building)
         if s not in seen:
-            pano = r.panoramas.all()[0] if r.panoramas.all() else None
+            pano = r.panoramas.first()
             tiles.append({
                 "name": r.building,
                 "slug": s,

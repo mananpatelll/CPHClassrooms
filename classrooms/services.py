@@ -3,6 +3,8 @@ from .models import Classroom, Panorama
 
 @transaction.atomic
 def upsert_classroom_payload(c: dict):
+        # validate minimal required keys
+    assert "external_id" in c and "building" in c and "room_number" in c
     cls, _ = Classroom.objects.update_or_create(
         external_id=c["external_id"],
         defaults={
@@ -15,7 +17,7 @@ def upsert_classroom_payload(c: dict):
 
         },
     )
-    for p in c.get("panoramas", []):
+    for p in sorted(c.get("panoramas", []), key=lambda x: x.get("order", 0)):
         Panorama.objects.update_or_create(
             external_id=p["external_id"],
             defaults={

@@ -1,21 +1,27 @@
 from django.db import models
+from django.utils import timezone
+
 
 class Classroom(models.Model):
     external_id = models.CharField(max_length=120, unique=True)
     building = models.CharField(max_length=120)
     room_number = models.CharField(max_length=20)
-    capacity = models.IntegerField(default=0)
+    capacity = models.PositiveIntegerField(default=0)
     summary = models.CharField(max_length=200, blank=True)  # short blurb
     is_published = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
     attributes = models.JSONField(default=dict, blank=True)  
 
+  
+        
     class Meta:
         indexes = [
             models.Index(fields=["building", "room_number"]),
             models.Index(fields=["is_published"]),
         ]
-        unique_together = (("building","room_number"),)
+        constraints = [
+            models.UniqueConstraint(fields=["building","room_number"], name="uniq_building_room")
+        ]
 
     def __str__(self): return f"{self.building} {self.room_number}"
 

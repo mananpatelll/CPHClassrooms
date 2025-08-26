@@ -22,17 +22,21 @@ from django.urls import path
 from classrooms.views import buildings_index, classroom_list_by_building, classroom_detail
 from django.http import HttpResponse
 
+from classrooms import views as cviews
+
+
 urlpatterns = [
    # Home now shows buildings:
-    path('', buildings_index, name='home'),
+    path("", cviews.buildings_index, name="home"),
+    
+    path("buildings/", cviews.buildings_index, name="buildings_index"),     # Buildings:
 
-    # Buildings:
-    path('buildings/', buildings_index, name='buildings_index'),
-    path('buildings/<slug:building_slug>/', classroom_list_by_building, name='building_classrooms'),
+    path("buildings/<slug:slug>/", cviews.classroom_list_by_building, name="classroom_list_by_building"),
+    path("classrooms/<int:pk>/", cviews.classroom_detail, name="classroom_detail"), # Classroom details
 
-    # Classrooms (detail stays the same):
-    path('classrooms/<int:pk>/', classroom_detail, name='classroom_detail'),
-    # admin left out on purpose for PoC
+
+    
+    path('admin/', admin.site.urls),  # enable Django admin
 ]
 
 if settings.DEBUG:

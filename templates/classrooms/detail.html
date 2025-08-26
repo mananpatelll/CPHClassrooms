@@ -1,134 +1,145 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/pannellum/build/pannellum.css">
-  <title>{{ room.building }} {{ room.room_number }}</title>
-  <style>
-    /* Layout & polish to match your screenshot */
-    .sidebar-thumbs { position: sticky; top: 80px; }    /* sticks under navbar */
-    .sidebar-thumbs img{ width:100%; height:110px; object-fit:cover;
-                         border-radius:6px; border:1px solid #ddd; cursor:pointer; }
-    .sidebar-thumbs img.active{ outline:3px solid #0d6efd }
+{% extends "base.html" %}
+{% block title %}{{ room.building }} {{ room.room_number }}{% endblock %}
 
-    #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; }
-    /* wide panorama feel (3:1); bump to 42% if you want taller */
-    #pano-wrap::before{ content:""; display:block; padding-top:33%; }
-    #pano{ position:absolute; inset:0; }
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css">
+<style>
+  .sidebar-thumbs { position: sticky; top: 80px; }
+  .sidebar-thumbs img{ width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid #ddd; cursor:pointer; }
+  .sidebar-thumbs img.active{ outline:3px solid #0d6efd }
+  #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; }
+  #pano-wrap{ aspect-ratio: 3 / 1; }  /* replaces padding-top hack */
+  #pano{ position:absolute; inset:0; }
+  .features-card { border:1px solid #e5e7eb; border-radius:5px; overflow:hidden; margin-top:8px; }
+  .features-header { background:#f8f9fa; padding:.50rem 1rem; font-weight:700; font-size:1.1rem; }
+  .features-table { font-size:.75rem; margin:0; }
+  .features-table th{ width:28%; color:#495057; }
+  .features-table td, .features-table th { padding:.5rem .50rem; }
+  .features-footer { background:#fff; padding:.50rem 1rem; border-top:1px solid #e5e7eb; }
+</style>
+{% endblock %}
 
-    .features-card { border:1px solid #e5e7eb; border-radius:5px; overflow:hidden; margin-top:8px; }
-    .features-header { background:#f8f9fa; padding:.50rem 1rem; font-weight:700; font-size:1.1rem; }
-    .features-table { font-size:.75rem; margin:0; }
-    .features-table th{ width:28%; color:#495057; }
-    .features-table td, .features-table th { padding:.5rem .50rem; }
-    .features-footer { background:#fff; padding:.50rem 1rem; border-top:1px solid #e5e7eb; }
-  </style>
-</head>
-<body>
-<nav class="navbar navbar-expand-md bg-light">
-  <div class="container">
-    <a class="navbar-brand" href="/">CPH Classrooms</a>
-  </div>
-</nav>
-
+{% block content %}
 <div class="container my-4">
   <h1 class="h4 text-center mb-3">{{ room.building }} {{ room.room_number }}</h1>
 
   <div class="row g-3">
-    <!-- Left: vertical thumbnails -->
-    <aside class="col-12 col-lg-3 order-2 order-lg-1">
-      <div class="sidebar-thumbs vstack gap-3">
-        {% for p in room.panoramas.all %}
-        <img
-          src="{{ p.preview_url|default:p.image_url }}"
-          data-scene="p{{p.id}}"
-          alt="{% if p.name %}{{ p.name }}{% else %}View {{ forloop.counter }}{% endif %}  of {{ room.building }} {{ room.room_number }}"
-          class="{% if forloop.first %}active{% endif %}"
-          loading="lazy" decoding="async">
-        {% endfor %}
-      </div>
-    </aside>
+<aside class="col-12 col-lg-3 order-2 order-lg-1">
+  <div class="sidebar-thumbs vstack gap-3">
+    {% if photos %}
+      {% for ph in photos %}
+        <a href="{{ ph.image_url }}" target="_blank" rel="noopener">
+          <img
+            src="{{ ph.image_url }}"
+            alt="{{ ph.caption|default:'Classroom photo' }}"
+            loading="lazy" decoding="async">
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="text-muted small">No photos uploaded yet.</div>
+    {% endif %}
+  </div>
+</aside>
 
-    <!-- Right: pano viewer -->
+
     <section class="col-12 col-lg-9 order-1 order-lg-2">
       <div id="pano-wrap" role="region" aria-label="360-degree view of {{ room.building }} {{ room.room_number }}">
         <div id="pano"></div>
       </div>
 
-      <!-- Features & Capabilities -->
       <div class="features-card">
         <div class="features-header">Features and Capabilities</div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm features-table">
-            <tbody>
-              {% if room.attributes.items %}
-                {% for k, v in room.attributes.items %}
-                  <tr><th>{{ k }}:</th><td>{{ v }}</td></tr>
-                {% endfor %}
-              {% elif room.attributes %}
-                {% for item in room.attributes %}
-                  <tr><th>{{ item.label }}:</th><td>{{ item.value }}</td></tr>
-                {% endfor %}
-              {% else %}
-                <tr><td class="text-muted">No features provided.</td></tr>
-              {% endif %}
-            </tbody>
-          </table>
+         <table class="table">
+          <tr><th>Location</th><td>{{ room.building.name }}</td></tr>
+          <tr><th>Campus</th><td>{{ room.building.get_campus_display }}</td></tr>
+          <tr><th>Capacity</th><td>{{ room.capacity }}</td></tr>
+
+          <tr><th>Voice amplification</th><td>{{ room.voice_amplification|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Class capture</th><td>{{ room.class_capture|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Web conference</th><td>{{ room.web_conference|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Handheld mic</th><td>{{ room.handheld_microphone|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Document camera</th><td>{{ room.document_camera|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Ceiling mic</th><td>{{ room.ceiling_microphone|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Ceiling camera</th><td>{{ room.ceiling_camera|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Web conf camera</th><td>{{ room.web_conference_camera|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Apple TV</th><td>{{ room.apple_tv|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Instructor PC equipped</th><td>{{ room.instructor_pc_equipped|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Assistive listening</th><td>{{ room.assistive_listening_device|yesno:"Yes,No" }}</td></tr>
+          <tr><th>Whiteboards</th><td>{{ room.whiteboards_count }}</td></tr>
+        </table>
+
         </div>
         <div class="features-footer">
           <div class="d-flex flex-wrap gap-2 justify-content-end">
-            <!-- Placeholder external links -->
-            <a class="btn btn-primary" href="https://example.com/book" target="_blank" rel="noopener">Book this class</a>
-            <a class="btn btn-outline-secondary" href="https://example.com/tech-support" target="_blank" rel="noopener">Tech support</a>
-            <a class="btn btn-outline-dark" href="https://example.com/more-info" target="_blank" rel="noopener">More info</a>
+            {% if room.book_url %}
+              <a class="btn btn-primary" href="{{ room.book_url }}" target="_blank" rel="noopener">
+                Book this class
+              </a>
+            {% endif %}
+
+            {% if room.building.tech_contact_name or room.building.tech_contact_phone or room.building.tech_contact_email %}
+              <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#techModal">
+                Tech support
+              </button>
+            {% endif %}
+
+            {% if room.more_info_url %}
+              <a class="btn btn-outline-dark" href="{{ room.more_info_url }}" target="_blank" rel="noopener">
+                More info
+              </a>
+            {% endif %}
           </div>
         </div>
+
+          <!-- Tech Support Modal -->
+          <div class="modal fade" id="techModal" tabindex="-1" aria-labelledby="techModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="techModalLabel">Tech Support - {{ room.building.name }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  {% if room.building.tech_contact_name %}
+                    <p><strong>Contact:</strong> {{ room.building.tech_contact_name }}</p>
+                  {% endif %}
+                  {% if room.building.tech_contact%}
+                    <p><strong>Phone:</strong> <a href="tel:{{ room.building.tech_contact }}">{{ room.building.tech_contact}}</a></p>
+                  {% endif %}
+                  {% if room.building.tech_contact_email %}
+                    <p><strong>Email:</strong> <a href="mailto:{{ room.building.tech_contact_email }}">{{ room.building.tech_contact_email }}</a></p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
       </div>
     </section>
   </div>
 </div>
+{% endblock %}
 
-<script src="https://unpkg.com/pannellum/build/pannellum.js"></script>
+{% block body_end %}
+<script src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Build scenes from DB
   const scenes = {
-  {% for p in room.panoramas.all %}
+  {% for p in panos %}
     "p{{p.id}}": {
       type: "equirectangular",
       panorama: "{{ p.image_url|escapejs }}",
-      {% if p.preview_url %} preview: "{{ p.preview_url|escapejs }}",{% endif %}
+      {% if p.preview_url %}preview: "{{ p.preview_url|escapejs }}",{% endif %}
       yaw: {{ p.yaw|default:0 }}, pitch: {{ p.pitch|default:0 }}, hfov: {{ p.hfov|default:95 }},
-      autoLoad: true,
-      hotSpots: [
-        {% for h in p.hotspots.all %}
-        { pitch: {{ h.pitch }}, yaw: {{ h.yaw }}, text: "{{ h.text|escapejs }}"{% if h.target_id %}, type:"scene", sceneId:"p{{ h.target_id }}"{% endif %} },
-        {% endfor %}
-      ]
+      autoLoad: true
     },
   {% endfor %}
   };
-  const first = Object.keys(scenes)[0];
-  if (!first) return;
-
-  const viewer = pannellum.viewer('pano', {
-    default: { firstScene: first, sceneFadeDuration: 500 },
-    scenes,
-    showControls: true
-  });
-
-  // Thumbnail → switch scene + highlight
-  const thumbs = document.querySelectorAll('.sidebar-thumbs img');
-  thumbs.forEach(img => {
-    img.addEventListener('click', () => {
-      const scene = img.dataset.scene;
-      if (scene) viewer.loadScene(scene);
-      thumbs.forEach(x => x.classList.remove('active'));
-      img.classList.add('active');
-    });
-  });
+  const ids = Object.keys(scenes);
+  if (!ids.length) return;
+  pannellum.viewer('pano', { default: { firstScene: ids[0], sceneFadeDuration: 500 }, scenes, showControls: true });
 });
 </script>
-</body>
-</html>
+
+{% endblock %}

@@ -15,11 +15,22 @@ source .venv/bin/activate
 # install deps
 pip install -r requirements.txt
 
-# migrate DB
+# migrate DB 
+
+python manage.py makemigrations 
 python manage.py migrate
 
+
+#Create super user for admin 
+python manage.py createsuperuser
+
 # (optional) import classrooms
-python manage.py import_classrooms --path feed.json
+python manage.py loaddata seed.json  
 
 # run dev server
-python manage.py runserver
+python manage.py runserver 
+
+# goto admin and add your data
+http://127.0.0.1:8000/admin/
+
+

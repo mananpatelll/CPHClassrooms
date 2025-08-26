@@ -14,12 +14,37 @@ from pathlib import Path
 from urllib.parse import urlparse
 import dj_database_url  
 from dotenv import load_dotenv
+import dj_database_url
 
 # pip install dj-database-url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+
+
+# --- Caching & Sessions -----------------------------------------
+
+USE_REDIS = os.getenv("DJANGO_USE_REDIS", "False").lower() == "true"
+
+
+if USE_REDIS:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        }
+    }
+    SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "cphclassrooms-dev",
+        }
+    }
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -38,7 +63,13 @@ MEDIA_ROOT = BASE_DIR / 'media'  # use S3 in prod via django-storages (see notes
 
 
 ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS","").split(",") if h]
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000", "http://localhost:8000"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000", "http://localhost:8000",
+    "https://127.0.0.1:8000", "https://localhost:8000",
+    "http://127.0.0.1:8001", "http://localhost:8001",
+    "https://127.0.0.1:8001", "https://localhost:8001",
+]
 
 
 # Application definition
@@ -92,19 +123,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 DATABASES = {
-   'default': dj_database_url.config(
-       default=os.getenv('DATABASE_URL', f"sqlite:///{BASE_DIR/'db.sqlite3'}"),
-       conn_max_age=60,
-   )
- }
- 
-CACHES = {
-   'default': {
-     'BACKEND': 'django_redis.cache.RedisCache',
-     'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-     'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'}
-   }
- }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",  # fallback if DATABASE_URL isn't set
+        conn_max_age=60,
+    )
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -149,9 +173,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 SECURE_SSL_REDIRECT = os.getenv('DJANGO_SECURE_SSL_REDIRECT','False').lower() == 'true'
+SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS','0'))  # 0 in dev
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 

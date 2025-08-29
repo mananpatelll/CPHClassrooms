@@ -2,8 +2,11 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Building, Classroom
 
+from django.db.models import Count, Q
 def buildings_index(request):
-    buildings = Building.objects.all().order_by("name")
+    buildings = (Building.objects
+                 .annotate(classrooms_count=Count('classrooms', filter=Q(classrooms__is_published=True)))
+                 .order_by("name"))
     return render(request, "classrooms/buildings.html", {"buildings": buildings})
 
 def classroom_list_by_building(request, slug):

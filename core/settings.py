@@ -14,7 +14,6 @@ from pathlib import Path
 from urllib.parse import urlparse
 import dj_database_url  
 from dotenv import load_dotenv
-import dj_database_url
 
 # pip install dj-database-url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -175,17 +174,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 SECURE_SSL_REDIRECT = os.getenv('DJANGO_SECURE_SSL_REDIRECT','False').lower() == 'true'
-SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS','0'))  # 0 in dev
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
+SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS','0' if DEBUG else '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
-
-SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS','31536000'))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True

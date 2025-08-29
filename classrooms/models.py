@@ -14,9 +14,9 @@ class Building(models.Model):
     slug = models.SlugField(max_length=140, unique=True, blank=True)
     campus = models.CharField(max_length=32, choices=Campus.choices, default=Campus.MAIN)
     preview = models.CharField(max_length=500, blank=True, help_text="e.g. /media/preview.jpeg")
-    tech_contact_name = models.CharField(max_length=15, blank = True)
-    tech_contact = models.CharField(max_length=30, blank=True)
-    tech_contact_email = models.CharField(max_length=30, blank=True)
+    tech_contact_name = models.CharField(max_length=120, blank = True)
+    tech_contact = models.CharField(max_length=50, blank=True)
+    tech_contact_email = models.CharField(max_length=120, blank=True)
     description = models.TextField(blank=True)
     more_info_url = models.CharField(max_length=500, blank=True)
 

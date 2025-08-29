@@ -9,6 +9,8 @@ def _yn(v):
 def upsert_classroom_payload(c: dict):
     # 1) building
     bname = c.get("building","").strip()
+    if not bname:
+        raise ValueError("Missing 'building' in classroom payload")
     building, _ = Building.objects.get_or_create(name=bname)
 
     # 2) classroom

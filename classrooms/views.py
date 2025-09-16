@@ -28,8 +28,41 @@ def classroom_detail(request, pk):
         Classroom.objects.select_related("building").prefetch_related("panoramas", "photos"),
         pk=pk, is_published=True
     )
+    feature_fields = [
+        # Microhpones/Speakers and cameras 
+        "voice_amplification",
+            #Microphones
+        'podium_microhpone',
+        "handheld_microphone",
+        "ceiling_microphone",
+        'lavalier_microphone',
+
+            #Cameras
+        "web_conference_camera",
+        "ceiling_camera",
+        "document_camera",
+
+        # Presentation/ desk features
+                #Presentation Features 
+        "wireless_presentation",
+        "instructor_pc_equipped",
+        "instructor_monitor",
+        "interactive_display",
+        "class_capture",
+        "env_light",
+        "assistive_listening_device",
+        'hdesk',
+
+        # Boards and Screens 
+        "chalk_board",
+        "whiteboards_count",
+        "projectors",
+    ]
     return render(request, "classrooms/detail.html", {
         "room": room,
+        "features": feature_fields,
         "panos": room.panoramas.all(),
-        "photos": room.photos.all(),   # <-- add this
+        "photos": room.photos.all(),
     })
+
+    

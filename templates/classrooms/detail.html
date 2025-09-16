@@ -1,7 +1,11 @@
 {% extends "base.html" %}
+{% load attr_extras %}
 {% block title %}{{ room.building }} {{ room.room_number }}{% endblock %}
 
 {% block head_extra %}
+...
+
+
 <link rel="stylesheet" href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css">
 <style>
   .sidebar-thumbs { position: sticky; top: 80px; }
@@ -12,6 +16,10 @@
   #pano{ position:absolute; inset:0; }
   .features-card { border:1px solid #e5e7eb; border-radius:5px; overflow:hidden; margin-top:8px; }
   .features-header { background:#f8f9fa; padding:.50rem 1rem; font-weight:700; font-size:1.1rem; }
+  .features-body {
+    max-height: 500px;    /* adjust height as you like */
+    overflow-y: auto;
+  }
   .features-table { font-size:.75rem; margin:0; }
   .features-table th{ width:28%; color:#495057; }
   .features-table td, .features-table th { padding:.5rem .50rem; }
@@ -49,26 +57,31 @@
 
       <div class="features-card">
         <div class="features-header">Features and Capabilities</div>
+        <div class="features-body">
         <div class="table-responsive">
     <table class="table features-table">
           <tr><th>Location</th><td>{{ room.building.name }}</td></tr>
           <tr><th>Campus</th><td>{{ room.building.get_campus_display }}</td></tr>
           <tr><th>Capacity</th><td>{{ room.capacity }}</td></tr>
+          {% for f in features %}
+            {% field_type room f as ftype %}
+            <tr>
+              <th>{% field_verbose room f %}</th>
+              <td>
+                {% if f == "wireless_presentation" %}
+                  {{ room.get_wireless_presentation_display|default:"None" }}
+                {% elif ftype == "BooleanField" %}
+                  {{ room|attr:f|yesno:"Yes,No" }}
+                {% else %}
+                  {{ room|attr:f }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
 
-          <tr><th>Voice amplification</th><td>{{ room.voice_amplification|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Class capture</th><td>{{ room.class_capture|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Web conference</th><td>{{ room.web_conference|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Handheld mic</th><td>{{ room.handheld_microphone|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Document camera</th><td>{{ room.document_camera|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Ceiling mic</th><td>{{ room.ceiling_microphone|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Ceiling camera</th><td>{{ room.ceiling_camera|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Web conf camera</th><td>{{ room.web_conference_camera|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Apple TV</th><td>{{ room.apple_tv|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Instructor PC equipped</th><td>{{ room.instructor_pc_equipped|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Assistive listening</th><td>{{ room.assistive_listening_device|yesno:"Yes,No" }}</td></tr>
-          <tr><th>Whiteboards</th><td>{{ room.whiteboards_count }}</td></tr>
+          
         </table>
-
+      </div>
         </div>
         <div class="features-footer">
           <div class="d-flex flex-wrap gap-2 justify-content-end">

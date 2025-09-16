@@ -58,9 +58,24 @@ def classroom_detail(request, pk):
         "whiteboards_count",
         "projectors",
     ]
+    feature_groups = {
+        "Audio": ["voice_amplification","podium_microhpone","handheld_microphone","ceiling_microphone","lavalier_microphone"],
+        "Video": ["web_conference_camera","ceiling_camera","document_camera","projectors"],
+        "Presentation": ["wireless_presentation","instructor_pc_equipped","interactive_display","instructor_monitor","class_capture"],
+        "Accessibility & Environment": ["assistive_listening_device","env_light","hdesk"],
+        "Boards": ["chalk_board","whiteboards_count"],
+    }
+    highlights = []
+    if room.class_capture: highlights.append("Panopto capture")
+    if room.web_conference_camera: highlights.append("Web conferencing")
+    if room.instructor_pc_equipped: highlights.append("Instructor PC")
+    if room.interactive_display: highlights.append("Interactive display")
+    if room.wireless_presentation: highlights.append("Wireless: " + room.get_wireless_presentation_display())
     return render(request, "classrooms/detail.html", {
         "room": room,
         "features": feature_fields,
+        "feature_groups": feature_groups,
+        "highlights": highlights,
         "panos": room.panoramas.all(),
         "photos": room.photos.all(),
     })

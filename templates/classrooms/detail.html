@@ -8,22 +8,18 @@
 
 <link rel="stylesheet" href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css">
 <style>
+  .chip {display:inline-flex; align-items:center; gap:.4rem; border:1px solid #e5e7eb; border-radius:999px; padding:.25rem .6rem; font-size:.8rem; background:#fff;}
+  .chip i {opacity:.75;}
+  .feature-accordion .accordion-button{font-weight:600;}
+  .kv-row{display:flex; justify-content:space-between; gap:.75rem; padding:.4rem .25rem; border-bottom:1px dashed #eee;}
+  .kv-row .k{color:#6c757d; min-width:48%; }
+  .kv-row .v{font-weight:500;}
   .sidebar-thumbs { position: sticky; top: 80px; }
   .sidebar-thumbs img{ width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid #ddd; cursor:pointer; }
   .sidebar-thumbs img.active{ outline:3px solid #0d6efd }
   #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; }
-  #pano-wrap{ aspect-ratio: 3 / 1; }  /* replaces padding-top hack */
+  #pano-wrap{ aspect-ratio: 3 / 1; }
   #pano{ position:absolute; inset:0; }
-  .features-card { border:1px solid #e5e7eb; border-radius:5px; overflow:hidden; margin-top:8px; }
-  .features-header { background:#f8f9fa; padding:.50rem 1rem; font-weight:700; font-size:1.1rem; }
-  .features-body {
-    max-height: 500px;    /* adjust height as you like */
-    overflow-y: auto;
-  }
-  .features-table { font-size:.75rem; margin:0; }
-  .features-table th{ width:28%; color:#495057; }
-  .features-table td, .features-table th { padding:.5rem .50rem; }
-  .features-footer { background:#fff; padding:.50rem 1rem; border-top:1px solid #e5e7eb; }
 </style>
 {% endblock %}
 
@@ -55,48 +51,80 @@
         <div id="pano"></div>
       </div>
 
-      <div class="features-card">
-        <div class="features-header">Features and Capabilities</div>
-        <div class="features-body">
-        <div class="table-responsive">
-    <table class="table features-table">
-          <tr><th>Location</th><td>{{ room.building.name }}</td></tr>
-          <tr><th>Campus</th><td>{{ room.building.get_campus_display }}</td></tr>
-          <tr><th>Capacity</th><td>{{ room.capacity }}</td></tr>
-          {% for f in features %}
-            {% field_type room f as ftype %}
-            <tr>
-              <th>{% field_verbose room f %}</th>
-              <td>
-                {% if f == "wireless_presentation" %}
-                  {{ room.get_wireless_presentation_display|default:"None" }}
-                {% elif ftype == "BooleanField" %}
-                  {{ room|attr:f|yesno:"Yes,No" }}
-                {% else %}
-                  {{ room|attr:f }}
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-
-          
-        </table>
+      <!-- Highlights -->
+      {% if highlights %}
+      <div class="d-flex flex-wrap gap-2 my-3">
+        {% for h in highlights %}
+          <span class="chip"><i class="bi bi-stars"></i>{{ h }}</span>
+        {% endfor %}
       </div>
+      {% endif %}
+
+      <!-- Key facts -->
+      <div class="row g-3 mb-2">
+        <div class="col-12 col-md-6">
+          <div class="p-3 border rounded-3 h-100">
+            <div class="kv-row"><div class="k">Location</div><div class="v">{{ room.building.name }}</div></div>
+            <div class="kv-row"><div class="k">Campus</div><div class="v">{{ room.building.get_campus_display }}</div></div>
+            <div class="kv-row"><div class="k">Capacity</div><div class="v">{{ room.capacity }}</div></div>
+          </div>
         </div>
-        <div class="features-footer">
-          <div class="d-flex flex-wrap gap-2 justify-content-end">
+        <div class="col-12 col-md-6">
+          <div class="p-3 border rounded-3 h-100">
+            <div class="kv-row"><div class="k">Wireless</div><div class="v">{{ room.get_wireless_presentation_display|default:"None" }}</div></div>
+            <div class="kv-row"><div class="k">Instructor PC</div><div class="v">{{ room.instructor_pc_equipped|yesno:"Yes,No" }}</div></div>
+            <div class="kv-row"><div class="k">Recording</div><div class="v">{{ room.class_capture|yesno:"Yes,No" }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grouped features -->
+      <div class="accordion feature-accordion mb-3" id="featAcc">
+        {% for group, fields in feature_groups.items %}
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#acc{{ forloop.counter }}">
+              {{ group }}
+            </button>
+          </h2>
+          <div id="acc{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}">
+            <div class="accordion-body">
+              <div class="row row-cols-1 row-cols-sm-2 g-2">
+                {% for f in fields %}
+                  {% field_type room f as ftype %}
+                  <div class="col">
+                    <div class="border rounded-3 p-2 h-100">
+                      <div class="small text-muted">{% field_verbose room f %}</div>
+                      <div class="fw-semibold mt-1">
+                        {% if f == "wireless_presentation" %}
+                          {{ room.get_wireless_presentation_display|default:"None" }}
+                        {% elif ftype == "BooleanField" %}
+                          {{ room|attr:f|yesno:"Yes,No" }}
+                        {% else %}
+                          {{ room|attr:f }}
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 justify-content-end">
             {% if room.book_url %}
               <a class="btn btn-primary" href="{{ room.book_url }}" target="_blank" rel="noopener">
                 Book this class
               </a>
             {% endif %}
-
             {% if room.building.tech_contact_name or room.building.tech_contact_phone or room.building.tech_contact_email %}
               <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#techModal">
                 Tech support
               </button>
             {% endif %}
-
             {% if room.more_info_url %}
               <a class="btn btn-outline-dark" href="{{ room.more_info_url }}" target="_blank" rel="noopener">
                 More info
@@ -104,7 +132,7 @@
             {% endif %}
           </div>
         </div>
-
+      </div>
           <!-- Tech Support Modal -->
           <div class="modal fade" id="techModal" tabindex="-1" aria-labelledby="techModalLabel" aria-hidden="true">
             <div class="modal-dialog">

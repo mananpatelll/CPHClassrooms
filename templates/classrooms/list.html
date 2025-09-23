@@ -11,6 +11,8 @@
   .tile-sub { font-size:.8rem; color:#6c757d; text-align:center; margin-bottom:.6rem; }
   .section-title { font-weight:700; text-align:center; font-size:1.5rem; margin:1.5rem 0 .75rem; }
   .img-cover { width:100%; height:100%; object-fit:cover; }
+  .filter-pill{border:1px solid #ddd; border-radius:999px; padding:.25rem .6rem; cursor:pointer; user-select:none;}
+  .filter-pill.active{background:#0d6efd; color:#fff; border-color:#0d6efd;}
 </style>
 {% endblock %}
 
@@ -19,10 +21,37 @@
   <h1 class="section-title">
     {% if building %}{{ building.name }}{% else %}All Classrooms{% endif %}
   </h1>
+  <!-- Filter bar -->
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="filterBar">
+    <span class="text-muted me-2">Filter:</span>
+    <span class="filter-pill" data-wireless="kramer">Kramer</span>
+    <span class="filter-pill" data-wireless="apple_tv">Apple&nbsp;TV</span>
+    <span class="filter-pill" data-wireless="screenbeam">ScreenBeam</span>
+    <span class="filter-pill" data-flag="class_capture">Recording</span>
+    <span class="filter-pill" data-flag="web_conference_camera">Zoom Camera</span>
+    <span class="filter-pill" data-flag="instructor_monitor">Instructor PC</span>
+    <span id="resultsMeta" class="text-muted small ms-2"></span>
+    <button id="clearFilters" class="btn btn-sm btn-outline-secondary ms-1" type="button">Clear</button>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <label class="text-muted small mb-0">Sort:</label>
+      <select id="sortSel" class="form-select form-select-sm" style="width:auto;">
+        <option value="">Default</option>
+        <option value="cap-asc">Capacity ↑</option>
+        <option value="cap-desc">Capacity ↓</option>
+        <option value="room-asc">Room # ↑</option>
+      </select>
+    </div>
+  </div>
 
-  <div class="row g-3">
+  <div class="row g-3" id="roomsGrid">
     {% for r in rooms %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
+           data-capacity="{{ r.capacity }}"
+           data-room="{{ r.room_number|default_if_none:'' }}"
+           data-wireless="{{ r.wireless_presentation|join:','|lower }}"
+           data-class_capture="{{ r.class_capture|yesno:'1,0' }}"
+           data-web_conference_camera="{{ r.web_conference_camera|yesno:'1,0' }}"
+           data-instructor_pc_equipped="{{ r.instructor_pc_equipped|yesno:'1,0' }}">
         <a class="text-decoration-none text-reset" href="{% url 'classroom_detail' r.pk %}">
           <div class="tile h-100">
             {# templates/classrooms/list.html (inside the card image area) #}
@@ -50,7 +79,11 @@
 
             <div class="px-3 pb-2 pt-2">
               <div class="tile-title">{{ r.building.name }} {{ r.room_number }}</div>
-              <div class="tile-sub">Capacity: {{ r.capacity }}</div>
+              <div class="tile-sub d-flex justify-content-center gap-2 flex-wrap">
+                <span>Capacity: {{ r.capacity }}</span>
+                {% if r.class_capture %}<span class="badge text-bg-light">Panopto</span>{% endif %}
+                {% if r.instructor_pc_equipped %}<span class="badge text-bg-light">Instructor PC</span>{% endif %}
+              </div>
             </div>
           </div>
         </a>
@@ -61,3 +94,107 @@
   </div>
 </div>
 {% endblock %}
+ {% block body_end %}
+ {{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const grid = document.getElementById('roomsGrid');
+  if (!grid) { console.error('roomsGrid not found'); return; }
+
+  // each card is the column div with data-* attributes
+  let cards = Array.from(grid.querySelectorAll('[data-capacity]'));
+
+  const pills = document.querySelectorAll('.filter-pill');
+  const sortSel = document.getElementById('sortSel');
+  const clearBtn = document.getElementById('clearFilters');
+  const resultsMeta = document.getElementById('resultsMeta');
+
+  // Active filters
+  const activeWireless = new Set();      // e.g. {"kramer","apple_tv","screenbeam"}
+  const activeFlags = new Set();         // e.g. {"class_capture","web_conference_camera","instructor_pc_equipped"}
+
+  // Toggle pills
+  pills.forEach(p => {
+    p.addEventListener('click', () => {
+      p.classList.toggle('active');
+
+      if (p.hasAttribute('data-wireless')) {
+        const val = (p.getAttribute('data-wireless') || '').toLowerCase().trim();
+        if (p.classList.contains('active')) activeWireless.add(val);
+        else activeWireless.delete(val);
+      } else if (p.hasAttribute('data-flag')) {
+        const flag = p.getAttribute('data-flag').trim();
+        if (p.classList.contains('active')) activeFlags.add(flag);
+        else activeFlags.delete(flag);
+      }
+
+      apply();
+    });
+  });
+
+  sortSel && sortSel.addEventListener('change', apply);
+  clearBtn && clearBtn.addEventListener('click', () => {
+    activeWireless.clear();
+    activeFlags.clear();
+    pills.forEach(p => p.classList.remove('active'));
+    apply();
+  });
+  function getWirelessTokens(card) {
+    // card attribute looks like "kramer,apple_tv"
+    const raw = (card.getAttribute('data-wireless') || '').toLowerCase();
+    return raw.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  function passesWireless(card) {
+    if (activeWireless.size === 0) return true;
+    const tokens = getWirelessTokens(card);
+    // require every selected wireless option to be present
+    for (const w of activeWireless) if (!tokens.includes(w)) return false;
+    return true;
+  }
+
+  function passesFlags(card) {
+    if (activeFlags.size === 0) return true;
+    for (const f of activeFlags) {
+      // flags are rendered like data-class_capture="1"
+      if ((card.getAttribute(`data-${f}`) || '0') !== '1') return false;
+    }
+    return true;
+  }
+
+  function apply() {
+    // Filter visibility
+    cards.forEach(card => {
+      const ok = passesWireless(card) && passesFlags(card);
+      card.style.display = ok ? '' : 'none';
+    });
+
+    // Sort visible cards in-place
+    const mode = sortSel ? sortSel.value : '';
+    const visible = cards.filter(c => c.style.display !== 'none');
+    const hidden  = cards.filter(c => c.style.display === 'none');
+      // update result count
+    if (resultsMeta) resultsMeta.textContent = `${visible.length} shown`;
+    if (mode) {
+      visible.sort((a, b) => {
+        if (mode === 'cap-asc')  return (a.getAttribute('data-capacity') || 0) - (b.getAttribute('data-capacity') || 0);
+        if (mode === 'cap-desc') return (b.getAttribute('data-capacity') || 0) - (a.getAttribute('data-capacity') || 0);
+        if (mode === 'room-asc') {
+          const ra = a.getAttribute('data-room') || '';
+          const rb = b.getAttribute('data-room') || '';
+          return ra.localeCompare(rb, undefined, { numeric: true, sensitivity: 'base' });
+        }
+        return 0;
+      });
+    }
+
+    // Re-append to apply new order
+    [...visible, ...hidden].forEach(card => grid.appendChild(card));
+  }
+
+  // First render
+  apply();
+});
+</script>
+
+ {% endblock %}

@@ -10,15 +10,43 @@
   .tile-title { font-weight:600; font-size:1rem; text-align:center; margin:.6rem 0 0; }
   .tile-sub { font-size:.8rem; color:#6c757d; text-align:center; margin:0 0 .8rem; }
   .section-title { font-weight:700; text-align:center; font-size:1.5rem; margin:1.5rem 0 .75rem; }
+  .pill{border:1px solid #ddd; border-radius:999px; padding:.25rem .65rem; cursor:pointer; user-select:none;}
+  .pill.active{background:#0d6efd; color:#fff; border-color:#0d6efd;}
+  .toolbar .form-control, .toolbar .form-select{height:34px; padding:.25rem .5rem;}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container my-4">
   <h1 class="section-title">Browse by Building</h1>
-  <div class="row g-3">
+    <!-- Filters / search / sort -->
+  <div class="toolbar d-flex flex-wrap align-items-center gap-2 mb-3">
+    <span class="text-muted me-1">Campus:</span>
+    <span class="pill" data-campus="MAIN">Main</span>
+    <span class="pill" data-campus="HSC">HSC</span>
+    <span class="pill" data-campus="AMBLER">Ambler</span>
+    <span class="pill" data-campus="CENTER_CITY">Center City</span>
+    <span class="pill" data-campus="JAPAN">Japan</span>
+    <span id="bResults" class="text-muted small ms-2"></span>
+    <button id="bClear" class="btn btn-sm btn-outline-secondary ms-1" type="button">Clear</button>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <input id="bSearch" class="form-control" type="search" placeholder="Search buildings..." style="width:220px;">
+      <label class="text-muted small mb-0">Sort:</label>
+      <select id="bSort" class="form-select" style="width:auto;">
+        <option value="">Default</option>
+        <option value="rooms-desc">Rooms ↓</option>
+        <option value="rooms-asc">Rooms ↑</option>
+        <option value="name-asc">Name A→Z</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-3" id="buildingsGrid">
     {% for b in buildings %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+       <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
+           data-campus="{{ b.campus }}"
+           data-name="{{ b.name|lower }}"
+           data-rooms="{{ b.classrooms_count }}">
         <a class="text-decoration-none text-reset" href="{% url 'classroom_list_by_building' b.slug %}">
           <div class="tile h-100">
             <div class="ratio ratio-16x9 bg-light">
@@ -28,9 +56,8 @@
             </div>
             <div class="px-3 pb-2 pt-2">
               <div class="tile-title">{{ b.name }}</div>
-              <div class="tile-sub">
-                {{ b.classrooms_count }} room{% if b.classrooms_count != 1 %}s{% endif %}
-              </div>
+            <div class="tile-sub">{{ b.classrooms_count }} room{% if b.classrooms_count != 1 %}s{% endif %} · {{ b.get_campus_display }}</div>
+
             </div>
           </div>
         </a>
@@ -40,4 +67,88 @@
     {% endfor %}
   </div>
 </div>
+{% endblock %}
+
+{% block body_end %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const grid = document.getElementById('buildingsGrid');
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll('[data-name]'));
+  const pills = document.querySelectorAll('.pill');
+  const search = document.getElementById('bSearch');
+  const sortSel = document.getElementById('bSort');
+  const clearBtn = document.getElementById('bClear');
+  const results = document.getElementById('bResults');
+
+  const activeCampuses = new Set();
+  let q = '';
+
+  pills.forEach(p => {
+    p.addEventListener('click', () => {
+      p.classList.toggle('active');
+      const c = p.getAttribute('data-campus');
+      if (p.classList.contains('active')) activeCampuses.add(c);
+      else activeCampuses.delete(c);
+      apply();
+    });
+  });
+
+  search.addEventListener('input', () => {
+    q = (search.value || '').toLowerCase().trim();
+    apply();
+  });
+
+  sortSel.addEventListener('change', apply);
+
+  clearBtn.addEventListener('click', () => {
+    activeCampuses.clear();
+    pills.forEach(p => p.classList.remove('active'));
+    q = '';
+    search.value = '';
+    sortSel.value = '';
+    apply();
+  });
+
+  function passesFilters(card){
+    // campus
+    if (activeCampuses.size){
+      const campus = card.getAttribute('data-campus');
+      if (!activeCampuses.has(campus)) return false;
+    }
+    // name search
+    if (q){
+      const name = card.getAttribute('data-name') || '';
+      if (!name.includes(q)) return false;
+    }
+    return true;
+  }
+
+  function apply(){
+    cards.forEach(c => c.style.display = passesFilters(c) ? '' : 'none');
+    const mode = sortSel.value;
+    const visible = cards.filter(c => c.style.display !== 'none');
+    const hidden  = cards.filter(c => c.style.display === 'none');
+
+    if (results) results.textContent = `${visible.length} shown`;
+
+    if (mode){
+      visible.sort((a,b) => {
+        if (mode === 'rooms-desc') return (b.getAttribute('data-rooms')||0) - (a.getAttribute('data-rooms')||0);
+        if (mode === 'rooms-asc')  return (a.getAttribute('data-rooms')||0) - (b.getAttribute('data-rooms')||0);
+        if (mode === 'name-asc') {
+          const na = a.getAttribute('data-name') || '';
+          const nb = b.getAttribute('data-name') || '';
+          return na.localeCompare(nb, undefined, {sensitivity:'base'});
+        }
+        return 0;
+      });
+    }
+    [...visible, ...hidden].forEach(c => grid.appendChild(c));
+  }
+
+  apply();
+});
+</script>
 {% endblock %}

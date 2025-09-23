@@ -17,9 +17,55 @@
   .sidebar-thumbs { position: sticky; top: 80px; }
   .sidebar-thumbs img{ width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid #ddd; cursor:pointer; }
   .sidebar-thumbs img.active{ outline:3px solid #0d6efd }
-  #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; }
-  #pano-wrap{ aspect-ratio: 3 / 1; }
+  #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; aspect-ratio:3/1; min-height:320px; }
   #pano{ position:absolute; inset:0; }
+
+  #photoLightbox .modal-content { background: transparent; border: 0; box-shadow: none; }
+  #lightboxCaption { border-top: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.55); }
+
+  #pano{ position:absolute; inset:0; }
+  /* Dialog: fill most of viewport, no borders/shadows */
+  #photoLightbox .modal-dialog { max-width: min(96vw, 1400px); margin: 0 auto; }
+  #photoLightbox .modal-content { background: transparent; border: 0; box-shadow: none; }
+  #photoLightbox .modal-body   { padding: 0; background: transparent; }
+
+  /* Stage fills the viewport height; image fits both axes without borders */
+  #lightboxStage{
+    height: min(86vh, 100vh - 80px);   /* room for close + caption */
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    
+    
+  }
+  #lightboxImg{
+    max-width: 100%;
+    max-height: 100%;
+    width: auto; height: auto;
+    display: block;
+    border: 0; background: transparent; /* kill the black frame */
+  }
+
+  /* Caption overlay: only a thin top border */
+  #lightboxCaption{
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 10px 12px;
+    background: rgba(0,0,0,.55);
+    color: rgba(255,255,255,.9);
+    border-top: 1px solid rgba(255,255,255,.18); /* the ONLY border */
+  }
+
+  /* Prev/Next arrows floating over the image */
+  #photoLightbox .lb-nav{
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 40px; height: 40px; border-radius: 999px;
+    border: 0; box-shadow: none;
+    background: rgba(0,0,0,.35); color: #fff;
+  }
+  #prevPhoto{ left: 10px; }
+  #nextPhoto{ right: 10px; }
+
+    
 </style>
 {% endblock %}
 
@@ -50,7 +96,6 @@
       <div id="pano-wrap" role="region" aria-label="360-degree view of {{ room.building }} {{ room.room_number }}">
         <div id="pano"></div>
       </div>
-
       <!-- Highlights -->
       {% if highlights %}
       <div class="d-flex flex-wrap gap-2 my-3">
@@ -83,11 +128,13 @@
         {% for group, fields in feature_groups.items %}
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#acc{{ forloop.counter }}">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#acc{{ forloop.counter }}">
+
               {{ group }}
             </button>
           </h2>
-          <div id="acc{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}">
+          <div id="acc{{ forloop.counter }}" class="accordion-collapse collapse show">
+
             <div class="accordion-body">
               <div class="row row-cols-1 row-cols-sm-2 g-2">
                 {% for f in fields %}
@@ -133,6 +180,32 @@
           </div>
         </div>
       </div>
+   <!-- Photo Lightbox -->
+        <div class="modal fade" id="photoLightbox" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+              <div class="modal-body p-0 position-relative">
+                <button type="button"
+                        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <!-- Full-height stage; image centers and scales to fit -->
+                <div id="lightboxStage">
+                  <img id="lightboxImg" alt="">
+                </div>
+
+                <!-- Caption overlay with only a top border -->
+                <div id="lightboxCaption" class="small text-center"></div>
+
+                <!-- Prev / Next -->
+                <button type="button" class="lb-nav btn opacity-75" id="prevPhoto" aria-label="Previous">‹</button>
+                <button type="button" class="lb-nav btn opacity-75" id="nextPhoto" aria-label="Next">›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
           <!-- Tech Support Modal -->
           <div class="modal fade" id="techModal" tabindex="-1" aria-labelledby="techModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -161,26 +234,109 @@
   </div>
 </div>
 {% endblock %}
-
 {% block body_end %}
 <script src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js" defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const scenes = {
-  {% for p in panos %}
-    "p{{p.id}}": {
-      type: "equirectangular",
-      panorama: "{{ p.image_url|escapejs }}",
-      {% if p.preview_url %}preview: "{{ p.preview_url|escapejs }}",{% endif %}
-      yaw: {{ p.yaw|default:0 }}, pitch: {{ p.pitch|default:0 }}, hfov: {{ p.hfov|default:95 }},
-      autoLoad: true
-    },
-  {% endfor %}
-  };
-  const ids = Object.keys(scenes);
-  if (!ids.length) return;
-  pannellum.viewer('pano', { default: { firstScene: ids[0], sceneFadeDuration: 500 }, scenes, showControls: true });
+document.addEventListener('DOMContentLoaded', function () {
+  const list = Array.from(document.querySelectorAll('.sidebar-thumbs a[href]'));
+  if (!list.length) return;
+
+  const modalEl = document.getElementById('photoLightbox');
+  const modal = new bootstrap.Modal(modalEl, { focus: true });
+  const imgEl = document.getElementById('lightboxImg');
+  const capEl = document.getElementById('lightboxCaption');
+  const prevBtn = document.getElementById('prevPhoto');
+  const nextBtn = document.getElementById('nextPhoto');
+
+  // Build an array of {url, caption}
+  const photos = list.map(a => ({
+    url: a.getAttribute('href'),
+    caption: (a.querySelector('img')?.getAttribute('alt') || '').trim()
+  }));
+
+  let idx = 0;
+
+  function show(i){
+    if (i < 0) i = photos.length - 1;
+    if (i >= photos.length) i = 0;
+    idx = i;
+    imgEl.src = photos[idx].url;
+    imgEl.alt = photos[idx].caption || 'Classroom photo';
+    capEl.textContent = photos[idx].caption || '';
+    modal.show();
+  }
+
+  // Click any thumb -> open modal there
+  list.forEach((a, i) => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      show(i);
+    });
+  });
+
+  // Prev/Next buttons
+  prevBtn.addEventListener('click', () => show(idx - 1));
+  nextBtn.addEventListener('click', () => show(idx + 1));
+
+  // Keyboard nav when modal is open
+  modalEl.addEventListener('shown.bs.modal', () => {
+    function onKey(e){
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    }
+    document.addEventListener('keydown', onKey);
+    modalEl.addEventListener('hidden.bs.modal', () => document.removeEventListener('keydown', onKey), { once: true });
+  });
 });
 </script>
 
+<script>
+(function () {
+  function init() {
+    if (!window.pannellum) return setTimeout(init, 40);
+
+    const panoEl = document.getElementById('pano');
+    if (!panoEl) return;
+
+    // Make sure the viewer has height even if aspect-ratio flakes out
+    if (!panoEl.clientHeight) {
+      panoEl.style.minHeight = '320px';
+      panoEl.style.height = 'min(60vh, 520px)';
+    }
+
+    // Build scenes from context (no trailing commas)
+    const scenes = {
+      {% for p in panos %}
+      "p{{p.id}}": {
+        type: "equirectangular",
+        panorama: "{{ p.image_url|escapejs }}",
+        {% if p.preview_url %}preview: "{{ p.preview_url|escapejs }}",{% endif %}
+        yaw: {{ p.yaw|default:0 }},
+        pitch: {{ p.pitch|default:0 }},
+        hfov: {{ p.hfov|default:95 }},
+        crossOrigin: "anonymous",
+        autoLoad: true
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    };
+
+    const ids = Object.keys(scenes);
+    if (!ids.length) return;
+
+    const viewer = pannellum.viewer('pano', {
+      default: { firstScene: ids[0], sceneFadeDuration: 400, autoLoad: true },
+      scenes: scenes,
+      showControls: true
+    });
+
+    // Show pannellum errors instead of silent failure
+    viewer.on('error', function (msg) {
+      console.error('Pannellum error:', msg);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 {% endblock %}

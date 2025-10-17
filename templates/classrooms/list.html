@@ -3,6 +3,57 @@
 
 {% block head_extra %}
 <style>
+    /* Responsive tweaks for smaller screens */
+  @media (max-width: 991.98px) {
+    /* Let the container go full width and reduce side padding */
+    .container-wide {
+      max-width: 100%;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    /* Stack rooms and resources vertically */
+    .row.g-4 {
+      flex-direction: column;
+    }
+
+    /* Each section full width */
+    .col-12.col-lg-8,
+    .col-12.col-lg-4 {
+      max-width: 100%;
+      flex: 0 0 100%;
+    }
+
+    /* Reduce card spacing for tight screens */
+    .tile,
+    .res-card {
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    /* Prevent thumbnails from shrinking awkwardly */
+    .res-media {
+      aspect-ratio: 16/9;
+    }
+
+    /* Reduce huge titles and paddings a little */
+    .section-title {
+      font-size: 1.25rem;
+      margin: 1rem 0 .5rem;
+    }
+
+    .res-body {
+      padding: .75rem .9rem .9rem;
+    }
+  }
+
+    /* Make the page use more of the screen on big desktops */
+  .container-wide { max-width: 1600px; padding-left: 36px; padding-right: 36px; }
+
+  @media (min-width: 1800px){
+    .container-wide { max-width: 1760px; } /* optional: stretch a bit more on ultra-wide */
+  }
+
   .tile { border:1px solid #ddd; border-radius:12px; overflow:hidden; background:#fff;
           box-shadow: 0 1px 2px rgba(0,0,0,.05); transition: transform .08s ease, box-shadow .08s ease; }
   .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
@@ -11,91 +62,154 @@
   .tile-sub { font-size:.8rem; color:#6c757d; text-align:center; margin-bottom:.6rem; }
   .section-title { font-weight:700; text-align:center; font-size:1.5rem; margin:1.5rem 0 .75rem; }
   .img-cover { width:100%; height:100%; object-fit:cover; }
+
+  /* filter UI */
   .filter-pill{border:1px solid #ddd; border-radius:999px; padding:.25rem .6rem; cursor:pointer; user-select:none;}
   .filter-pill.active{background:#0d6efd; color:#fff; border-color:#0d6efd;}
+
+  /* resources sidebar (stacked big cards) */
+  .sidebar-sticky { position: sticky; top: 80px; }
+  .res-card { border:1px solid #eaeaea; border-radius:14px; overflow:hidden; background:#fff; margin-bottom:1rem; }
+  .res-media { aspect-ratio: 16 / 9; width:100%; position:relative; background:#f0f2f4; }
+  .res-media img { width:100%; height:100%; object-fit:cover; display:block; }
+  .res-media.play::after { content:""; position:absolute; inset:0; background:rgba(0,0,0,.18); }
+  .res-media.play::before { content:""; position:absolute; left:50%; top:50%; width:0; height:0;
+                            border-left:20px solid #fff; border-top:12px solid transparent; border-bottom:12px solid transparent;
+                            transform:translate(-40%,-50%); opacity:.95; }
+  .res-body { padding:.9rem 1rem 1rem; }
+  .res-kicker { font-size:.75rem; color:#6c757d; margin-bottom:.25rem; }
+  .res-title { font-weight:700; line-height:1.2; }
+  .res-summary { color:#6c757d; font-size:.9rem; margin-top:.4rem; }
+  .res-badges { margin-top:.6rem; display:flex; gap:.4rem; flex-wrap:wrap; }
+  .res-pill { font-size:.72rem; border:1px solid #ddd; border-radius:999px; padding:.15rem .5rem; background:#fff; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container container-wide my-4">
   <h1 class="section-title">
     {% if building %}{{ building.name }}{% else %}All Classrooms{% endif %}
   </h1>
-  <!-- Filter bar -->
-  <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="filterBar">
-    <span class="text-muted me-2">Filter:</span>
-    <span class="filter-pill" data-wireless="kramer">Kramer</span>
-    <span class="filter-pill" data-wireless="apple_tv">Apple&nbsp;TV</span>
-    <span class="filter-pill" data-wireless="screenbeam">ScreenBeam</span>
-    <span class="filter-pill" data-flag="class_capture">Recording</span>
-    <span class="filter-pill" data-flag="web_conference_camera">Zoom Camera</span>
-    <span class="filter-pill" data-flag="instructor_monitor">Instructor PC</span>
-    <span id="resultsMeta" class="text-muted small ms-2"></span>
-    <button id="clearFilters" class="btn btn-sm btn-outline-secondary ms-1" type="button">Clear</button>
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <label class="text-muted small mb-0">Sort:</label>
-      <select id="sortSel" class="form-select form-select-sm" style="width:auto;">
-        <option value="">Default</option>
-        <option value="cap-asc">Capacity ↑</option>
-        <option value="cap-desc">Capacity ↓</option>
-        <option value="room-asc">Room # ↑</option>
-      </select>
-    </div>
-  </div>
 
-  <div class="row g-3" id="roomsGrid">
-    {% for r in rooms %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
-           data-capacity="{{ r.capacity }}"
-           data-room="{{ r.room_number|default_if_none:'' }}"
-           data-wireless="{{ r.wireless_presentation|join:','|lower }}"
-           data-class_capture="{{ r.class_capture|yesno:'1,0' }}"
-           data-web_conference_camera="{{ r.web_conference_camera|yesno:'1,0' }}"
-           data-instructor_pc_equipped="{{ r.instructor_pc_equipped|yesno:'1,0' }}">
-        <a class="text-decoration-none text-reset" href="{% url 'classroom_detail' r.pk %}">
-          <div class="tile h-100">
-            {# templates/classrooms/list.html (inside the card image area) #}
-              <div class="ratio ratio-16x9">
-                {% if r.preview_image %}
-                  <img src="{{ r.preview_image }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
-                {% else %}
-                  {% with photo=r.photos.all|first %}
-                    {% if photo and photo.image_url %}
-                      <img src="{{ photo.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
-                    {% else %}
-                      {% with pano=r.panoramas.all|first %}
-                        {% if pano and pano.preview_url %}
-                          <img src="{{ pano.preview_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
-                        {% elif pano and pano.image_url %}
-                          <img src="{{ pano.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
-                        {% else %}
-                          <div class="d-flex align-items-center justify-content-center text-muted" style="font-size:.85rem;">No preview</div>
-                        {% endif %}
-                      {% endwith %}
-                    {% endif %}
-                  {% endwith %}
-                {% endif %}
+  <div class="row g-4">
+    <!-- LEFT: filters + rooms grid -->
+    <section class="col-12 col-lg-8">
+      <!-- Filter bar -->
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3" id="filterBar">
+        <span class="text-muted me-2">Filter:</span>
+        <span class="filter-pill" data-wireless="kramer">Kramer</span>
+        <span class="filter-pill" data-wireless="apple_tv">Apple&nbsp;TV</span>
+        <span class="filter-pill" data-wireless="screenbeam">ScreenBeam</span>
+        <span class="filter-pill" data-flag="class_capture">Recording</span>
+        <span class="filter-pill" data-flag="web_conference_camera">Zoom Camera</span>
+        <span class="filter-pill" data-flag="instructor_pc_equipped">Instructor PC</span>
+        <span id="resultsMeta" class="text-muted small ms-2"></span>
+        <button id="clearFilters" class="btn btn-sm btn-outline-secondary ms-1" type="button">Clear</button>
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <label class="text-muted small mb-0">Sort:</label>
+          <select id="sortSel" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Default</option>
+            <option value="cap-asc">Capacity ↑</option>
+            <option value="cap-desc">Capacity ↓</option>
+            <option value="room-asc">Room # ↑</option>
+          </select>
+        </div>
+      </div>
+      <!-- End Filter bar -->
+
+      <!-- Rooms grid -->
+      <div class="row g-3" id="roomsGrid">
+        {% for r in rooms %}
+          <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4"
+               data-capacity="{{ r.capacity }}"
+               data-room="{{ r.room_number|default_if_none:'' }}"
+               data-wireless="{{ r.wireless_presentation|join:','|lower }}"
+               data-class_capture="{{ r.class_capture|yesno:'1,0' }}"
+               data-web_conference_camera="{{ r.web_conference_camera|yesno:'1,0' }}"
+               data-instructor_pc_equipped="{{ r.instructor_pc_equipped|yesno:'1,0' }}">
+            <a class="text-decoration-none text-reset" href="{% url 'classroom_detail' r.pk %}">
+              <div class="tile h-100">
+                <div class="ratio ratio-16x9">
+                  {% if r.preview_image %}
+                    <img src="{{ r.preview_image }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                  {% else %}
+                    {% with photo=r.photos.all|first %}
+                      {% if photo and photo.image_url %}
+                        <img src="{{ photo.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                      {% else %}
+                        {% with pano=r.panoramas.all|first %}
+                          {% if pano and pano.preview_url %}
+                            <img src="{{ pano.preview_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                          {% elif pano and pano.image_url %}
+                            <img src="{{ pano.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                          {% else %}
+                            <div class="d-flex align-items-center justify-content-center text-muted" style="font-size:.85rem;">No preview</div>
+                          {% endif %}
+                        {% endwith %}
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
+                </div>
+                <div class="px-3 pb-2 pt-2">
+                  <div class="tile-title">{{ r.building.name }} {{ r.room_number }}</div>
+                  <div class="tile-sub d-flex justify-content-center gap-2 flex-wrap">
+                    <span>Capacity: {{ r.capacity }}</span>
+                    {% if r.class_capture %}<span class="badge text-bg-light">Panopto</span>{% endif %}
+                    {% if r.instructor_pc_equipped %}<span class="badge text-bg-light">Instructor PC</span>{% endif %}
+                  </div>
+                </div>
               </div>
+            </a>
+          </div>
+        {% empty %}
+          <p>No classrooms found.</p>
+        {% endfor %}
+      </div>
+      <!-- End Rooms grid -->
+    </section>
 
-            <div class="px-3 pb-2 pt-2">
-              <div class="tile-title">{{ r.building.name }} {{ r.room_number }}</div>
-              <div class="tile-sub d-flex justify-content-center gap-2 flex-wrap">
-                <span>Capacity: {{ r.capacity }}</span>
-                {% if r.class_capture %}<span class="badge text-bg-light">Panopto</span>{% endif %}
-                {% if r.instructor_pc_equipped %}<span class="badge text-bg-light">Instructor PC</span>{% endif %}
+    <!-- RIGHT: resources sidebar (stacked cards) -->
+    {% if building %}
+    <aside class="col-12 col-lg-4">
+      <div class="sidebar-sticky">
+        <h2 class="h5 fw-bold mb-2">Resources</h2>
+
+        {% if resources %}
+          {% for res in resources %}
+          <a class="res-card text-decoration-none text-reset d-block" href="{{ res.url }}" target="_blank" rel="noopener">
+            <div class="res-media {% if res.kind == 'youtube' %}play{% endif %}">
+              {% if res.display_thumbnail %}
+                <img src="{{ res.display_thumbnail }}" alt="">
+              {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9aa0a6;font-size:.9rem;">No image</div>
+              {% endif %}
+            </div>
+            <div class="res-body">
+              <div class="res-kicker">
+                {% if res.kind == 'youtube' %}YouTube{% else %}Link{% endif %}
+                {% if res.created_at %} · {{ res.created_at|date:"M j, Y" }}{% endif %}
+              </div>
+              <div class="res-title">{{ res.title }}</div>
+              {% if res.summary %}<div class="res-summary">{{ res.summary }}</div>{% endif %}
+              <div class="res-badges">
+                <span class="res-pill">{{ building.name }}</span>
+                {% if res.kind == 'youtube' %}<span class="res-pill">Video</span>{% endif %}
               </div>
             </div>
-          </div>
-        </a>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted small">No resources yet.</div>
+        {% endif %}
       </div>
-    {% empty %}
-      <p>No classrooms found.</p>
-    {% endfor %}
+    </aside>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
- {% block body_end %}
- {{ block.super }}
+
+{% block body_end %}
+{{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const grid = document.getElementById('roomsGrid');
@@ -110,8 +224,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultsMeta = document.getElementById('resultsMeta');
 
   // Active filters
-  const activeWireless = new Set();      // e.g. {"kramer","apple_tv","screenbeam"}
-  const activeFlags = new Set();         // e.g. {"class_capture","web_conference_camera","instructor_pc_equipped"}
+  const activeWireless = new Set();
+  const activeFlags = new Set();
 
   // Toggle pills
   pills.forEach(p => {
@@ -139,8 +253,8 @@ document.addEventListener('DOMContentLoaded', function () {
     pills.forEach(p => p.classList.remove('active'));
     apply();
   });
+
   function getWirelessTokens(card) {
-    // card attribute looks like "kramer,apple_tv"
     const raw = (card.getAttribute('data-wireless') || '').toLowerCase();
     return raw.split(',').map(s => s.trim()).filter(Boolean);
   }
@@ -148,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function passesWireless(card) {
     if (activeWireless.size === 0) return true;
     const tokens = getWirelessTokens(card);
-    // require every selected wireless option to be present
     for (const w of activeWireless) if (!tokens.includes(w)) return false;
     return true;
   }
@@ -156,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function passesFlags(card) {
     if (activeFlags.size === 0) return true;
     for (const f of activeFlags) {
-      // flags are rendered like data-class_capture="1"
       if ((card.getAttribute(`data-${f}`) || '0') !== '1') return false;
     }
     return true;
@@ -173,12 +285,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const mode = sortSel ? sortSel.value : '';
     const visible = cards.filter(c => c.style.display !== 'none');
     const hidden  = cards.filter(c => c.style.display === 'none');
-      // update result count
+
     if (resultsMeta) resultsMeta.textContent = `${visible.length} shown`;
+
     if (mode) {
       visible.sort((a, b) => {
-        if (mode === 'cap-asc')  return (a.getAttribute('data-capacity') || 0) - (b.getAttribute('data-capacity') || 0);
-        if (mode === 'cap-desc') return (b.getAttribute('data-capacity') || 0) - (a.getAttribute('data-capacity') || 0);
+        if (mode === 'cap-asc')  return (+a.getAttribute('data-capacity') || 0) - (+b.getAttribute('data-capacity') || 0);
+        if (mode === 'cap-desc') return (+b.getAttribute('data-capacity') || 0) - (+a.getAttribute('data-capacity') || 0);
         if (mode === 'room-asc') {
           const ra = a.getAttribute('data-room') || '';
           const rb = b.getAttribute('data-room') || '';
@@ -192,9 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
     [...visible, ...hidden].forEach(card => grid.appendChild(card));
   }
 
-  // First render
   apply();
 });
 </script>
-
- {% endblock %}
+{% endblock %}

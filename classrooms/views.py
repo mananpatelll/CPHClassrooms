@@ -21,7 +21,9 @@ def classroom_list_by_building(request, slug):
              .select_related("building")
              .prefetch_related("panoramas", "photos")
              .order_by("room_number"))
-    return render(request, "classrooms/list.html", {"building": building, "rooms": rooms})
+    resources = building.resources.filter(published=True)
+
+    return render(request, "classrooms/list.html", {"building": building, "rooms": rooms,  "resources": list(resources)})
 
 def classroom_detail(request, pk):
     room = get_object_or_404(

@@ -141,3 +141,53 @@ class ClassroomPhoto(models.Model):
 
     def __str__(self):
         return f"Photo for {self.classroom} ({self.order})"
+    
+    
+# --- New: resources attached to a Building --------------------
+class BuildingResource(models.Model):
+    class Kind(models.TextChoices):
+        YOUTUBE = "youtube", "YouTube Video"
+        LINK = "link", "External Link"
+
+    building = models.ForeignKey(Building, related_name="resources", on_delete=models.CASCADE)
+    kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.LINK)
+    title = models.CharField(max_length=160)
+    url = models.CharField(max_length=600)
+    # optional thumbnail to override auto-generated ones
+    thumbnail_url = models.CharField(max_length=600, blank=True)
+    summary = models.TextField(blank=True)
+    published = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "-created_at"]
+        indexes = [
+            models.Index(fields=["building", "published"]),
+            models.Index(fields=["order", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.building.name}: {self.title}"
+
+    # very lightweight YouTube id extraction for youtu.be / youtube.com
+    @property
+    def youtube_id(self):
+        if self.kind != self.Kind.YOUTUBE:
+            return None
+        u = (self.url or "").strip()
+        if "youtu.be/" in u:
+            return u.rsplit("youtu.be/", 1)[-1].split("?")[0].split("&")[0]
+        if "youtube.com" in u and "v=" in u:
+            return u.split("v=", 1)[-1].split("&")[0]
+        return None
+
+    @property
+    def display_thumbnail(self):
+        if self.thumbnail_url:
+            return self.thumbnail_url
+        vid = self.youtube_id
+        if vid:
+            # fall back to standard YT thumbnail if not provided
+            return f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
+        return ""  # let template show a neutral placeholder

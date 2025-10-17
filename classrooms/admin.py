@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Building, Classroom, Panorama, ClassroomPhoto
+from .models import Building, Classroom, Panorama, ClassroomPhoto, BuildingResource
 from django import forms
 
 class PanoramaInline(admin.TabularInline):
@@ -17,12 +17,6 @@ class ClassroomAdminForm(forms.ModelForm):
         fields = "__all__"
         widgets = {"wireless_presentation": forms.CheckboxSelectMultiple}   
         
-@admin.register(Building)
-class BuildingAdmin(admin.ModelAdmin):
-    list_display = ("name", "campus", "classrooms_count","tech_contact_name","tech_contact","tech_contact_email","more_info_url")
-    list_filter = ("campus",)
-    search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
 
 
 
@@ -47,3 +41,19 @@ class ClassroomAdmin(admin.ModelAdmin):
         "book_url"
     )
     inlines = [PanoramaInline, ClassroomPhotoInline]
+
+
+class BuildingResourceInline(admin.TabularInline):
+    model = BuildingResource
+    extra = 0
+    fields = ("published", "order", "kind", "title", "url", "thumbnail_url", "summary")
+    show_change_link = True
+
+@admin.register(Building)
+class BuildingAdmin(admin.ModelAdmin):
+    list_display = ("name", "campus", "classrooms_count","tech_contact_name","tech_contact","tech_contact_email","more_info_url")
+    list_filter = ("campus",)
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+    inlines = [BuildingResourceInline]  # ← add this
+

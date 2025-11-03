@@ -3,8 +3,6 @@
 {% block title %}{{ room.building }} {{ room.room_number }}{% endblock %}
 
 {% block head_extra %}
-...
-
 
 <link rel="stylesheet" href="https://unpkg.com/pannellum@2.5.6/build/pannellum.css">
 <style>
@@ -78,12 +76,14 @@
   <div class="sidebar-thumbs vstack gap-3">
     {% if photos %}
       {% for ph in photos %}
-        <a href="{{ ph.image_url }}" target="_blank" rel="noopener">
-          <img
-            src="{{ ph.image_url }}"
-            alt="{{ ph.caption|default:'Classroom photo' }}"
-            loading="lazy" decoding="async">
-        </a>
+        {% if ph.image_file %}
+          <a href="{{ ph.image_file.url }}" target="_blank" rel="noopener">
+            <img
+              src="{{ ph.image_file.url }}"
+              alt="{{ ph.caption|default:'Classroom photo' }}"
+              loading="lazy" decoding="async">
+          </a>
+        {% endif %}
       {% endfor %}
     {% else %}
       <div class="text-muted small">No photos uploaded yet.</div>
@@ -167,13 +167,13 @@
                 Book this class
               </a>
             {% endif %}
-            {% if room.building.tech_contact_name or room.building.tech_contact_phone or room.building.tech_contact_email %}
+            {% if room.building.tech_contact_name or room.building.tech_contact or room.building.tech_contact_email %}
               <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#techModal">
                 Tech support
               </button>
             {% endif %}
-            {% if room.more_info_url %}
-              <a class="btn btn-outline-dark" href="{{ room.more_info_url }}" target="_blank" rel="noopener">
+            {% if room.building.more_info_url %}
+              <a class="btn btn-outline-dark" href="{{ room.building.more_info_url }}" target="_blank" rel="noopener">
                 More info
               </a>
             {% endif %}
@@ -229,10 +229,9 @@
             </div>
           </div>
 
-      </div>
+      
     </section>
-  </div>
-</div>
+
 {% endblock %}
 {% block body_end %}
 <script src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js" defer></script>
@@ -304,22 +303,22 @@ document.addEventListener('DOMContentLoaded', function () {
       panoEl.style.height = 'min(60vh, 520px)';
     }
 
-    // Build scenes from context (no trailing commas)
-    const scenes = {
-      {% for p in panos %}
-      "p{{p.id}}": {
-        type: "equirectangular",
-        panorama: "{{ p.image_url|escapejs }}",
-        {% if p.preview_url %}preview: "{{ p.preview_url|escapejs }}",{% endif %}
-        yaw: {{ p.yaw|default:0 }},
-        pitch: {{ p.pitch|default:0 }},
-        hfov: {{ p.hfov|default:95 }},
-        crossOrigin: "anonymous",
-        autoLoad: true
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
+    // Build scenes from context, skip rows without a file
+    const scenes = {};
+    {% for p in panos %}
+    {% if p.image_file %}
+    scenes["p{{p.id}}"] = {
+      type: "equirectangular",
+      panorama: "{{ p.image_file.url|escapejs }}",
+      {% if p.preview_file %}preview: "{{ p.preview_file.url|escapejs }}",{% endif %}
+      yaw: {{ p.yaw|default:0 }},
+      pitch: {{ p.pitch|default:0 }},
+      hfov: {{ p.hfov|default:95 }},
+      crossOrigin: "anonymous",
+      autoLoad: true
     };
-
+    {% endif %}
+    {% endfor %}
     const ids = Object.keys(scenes);
     if (!ids.length) return;
 

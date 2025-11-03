@@ -22,6 +22,7 @@ from django.urls import path
 from classrooms.views import buildings_index, classroom_list_by_building, classroom_detail
 from django.http import HttpResponse
 
+
 from classrooms import views as cviews
 
 
@@ -39,5 +40,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # enable Django admin
 ]
 
-if settings.DEBUG:
+if settings.DEBUG and settings.STORAGE_BACKEND == "local":
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

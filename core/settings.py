@@ -15,6 +15,11 @@ from urllib.parse import urlparse
 import dj_database_url  
 from dotenv import load_dotenv
 
+
+#--- Storage backend selection -----------------------------------
+# set STORAGE_BACKEND env var to "s3" to use S3 via django-st
+STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")  # "s3" or "local"
+
 # pip install dj-database-url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -63,12 +68,7 @@ MEDIA_ROOT = BASE_DIR / 'media'  # use S3 in prod via django-storages (see notes
 
 ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS","").split(",") if h]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000", "http://localhost:8000",
-    "https://127.0.0.1:8000", "https://localhost:8000",
-    "http://127.0.0.1:8001", "http://localhost:8001",
-    "https://127.0.0.1:8001", "https://localhost:8001",
-]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
 
 # Application definition
@@ -148,6 +148,34 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+if STORAGE_BACKEND == "s3":
+    AWS_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+    AWS_S3_REGION_NAME = os.getenv("S3_REGION")  # e.g. "us-east-1", "nyc3", "auto" for R2
+    AWS_S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")   # e.g. https://s3.amazonaws.com or provider endpoint
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("S3_CUSTOM_DOMAIN") # optional CDN/vanity domain
+    AWS_S3_SIGNATURE_VERSION = os.getenv("S3_SIGNATURE_VERSION", "s3v4")
+    AWS_S3_ADDRESSING_STYLE = os.getenv("S3_ADDRESSING_STYLE", "auto")  # "virtual", "path", or "auto"
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_QUERYSTRING_AUTH = False  
+    AWS_DEFAULT_ACL = "public-read"     # make new uploads public   
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=31536000, public"}
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/" if AWS_S3_CUSTOM_DOMAIN else f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"}
+else:
+    MEDIA_ROOT = os.getenv("MEDIA_ROOT", str(BASE_DIR / "media"))
+    MEDIA_URL = "/media/"
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+
+# reverse proxy sanity
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -181,4 +209,5 @@ SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+
 

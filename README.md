@@ -6,7 +6,7 @@ Tech: Python 3.11, Django 5, Bootstrap 5 (templates), Pannellum (360 viewer). SQ
 
 ```bash
 # create & activate venv
-python -m venv .venv
+py -3.11 -m venv .venv
 # Windows
 .venv\Scripts\activate
 # macOS/Linux

@@ -13,7 +13,7 @@ class Building(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=140, unique=True, blank=True)
     campus = models.CharField(max_length=32, choices=Campus.choices, default=Campus.MAIN)
-    preview = models.CharField(max_length=500, blank=True, help_text="e.g. /media/preview.jpeg")
+    preview_file = models.ImageField(upload_to="buildings/previews/%Y/%m/%d/", blank=True, null=True)
     tech_contact_name = models.CharField(max_length=120, blank = True)
     tech_contact = models.CharField(max_length=50, blank=True)
     tech_contact_email = models.CharField(max_length=120, blank=True)
@@ -50,10 +50,9 @@ class Classroom(models.Model):
     room_number = models.CharField(max_length=20)
     
       # NEW: card preview image (optional)
-    preview_image = models.CharField(
-        max_length=500, blank=True,
-        help_text="Shown on cards. e.g. /media/alter-101-preview.jpg"
-    )
+    preview_image_file = models.ImageField(upload_to="classrooms/previews/%Y/%m/%d/", blank=True, null=True)
+
+
     
     capacity = models.PositiveIntegerField(default=0, verbose_name="Capacity")
     summary = models.CharField(max_length=200, blank=True, verbose_name="Summary")
@@ -116,9 +115,8 @@ class Panorama(models.Model):
     external_id = models.CharField(max_length=120, unique=True)
     classroom = models.ForeignKey(Classroom, related_name="panoramas", on_delete=models.CASCADE)
     name = models.CharField(max_length=120, blank=True)
-    image_url = models.CharField(max_length=500, blank=True, help_text="e.g. /media/preview.jpeg")
-            # keep URL to /media/.. for now
-    preview_url = models.CharField(max_length=500, blank=True, help_text="e.g. /media/preview.jpeg")
+    image_file = models.ImageField(upload_to="panoramas/%Y/%m/%d/", blank=True, null=True)
+    preview_file = models.ImageField(upload_to="panoramas/previews/%Y/%m/%d/", blank=True, null=True)
 
     yaw = models.FloatField(default=0)
     pitch = models.FloatField(default=0)
@@ -132,7 +130,8 @@ class Panorama(models.Model):
 # models.py (just this change)
 class ClassroomPhoto(models.Model):
     classroom = models.ForeignKey(Classroom, related_name="photos", on_delete=models.CASCADE)
-    image_url = models.CharField(max_length=500, blank=True, help_text="e.g. /media/some.jpg")
+    image_file = models.ImageField(upload_to="photos/%Y/%m/%d/", blank=True, null=True)
+
     caption = models.CharField(max_length=140, blank=True)
     order = models.PositiveIntegerField(default=0)
 

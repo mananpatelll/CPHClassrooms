@@ -130,18 +130,18 @@
             <a class="text-decoration-none text-reset" href="{% url 'classroom_detail' r.pk %}">
               <div class="tile h-100">
                 <div class="ratio ratio-16x9">
-                  {% if r.preview_image %}
-                    <img src="{{ r.preview_image }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                  {% if r.preview_image_file %}
+                    <img src="{{ r.preview_image_file.url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
                   {% else %}
                     {% with photo=r.photos.all|first %}
-                      {% if photo and photo.image_url %}
-                        <img src="{{ photo.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                      {% if photo and photo.image_file %}
+                        <img src="{{ photo.image_file.url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
                       {% else %}
                         {% with pano=r.panoramas.all|first %}
-                          {% if pano and pano.preview_url %}
-                            <img src="{{ pano.preview_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
-                          {% elif pano and pano.image_url %}
-                            <img src="{{ pano.image_url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                          {% if pano and pano.preview_file %}
+                            <img src="{{ pano.preview_file.url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
+                          {% elif pano and pano.image_file %}
+                            <img src="{{ pano.image_file.url }}" alt="Preview of {{ r.building.name }} {{ r.room_number }}" class="img-cover" loading="lazy" decoding="async">
                           {% else %}
                             <div class="d-flex align-items-center justify-content-center text-muted" style="font-size:.85rem;">No preview</div>
                           {% endif %}
@@ -179,7 +179,7 @@
           <a class="res-card text-decoration-none text-reset d-block" href="{{ res.url }}" target="_blank" rel="noopener">
             <div class="res-media {% if res.kind == 'youtube' %}play{% endif %}">
               {% if res.display_thumbnail %}
-                <img src="{{ res.display_thumbnail }}" alt="">
++                <img src="{{ res.display_thumbnail }}" alt="" loading="lazy" decoding="async">
               {% else %}
                 <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9aa0a6;font-size:.9rem;">No image</div>
               {% endif %}

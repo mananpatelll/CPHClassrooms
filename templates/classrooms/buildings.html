@@ -46,17 +46,19 @@
        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
            data-campus="{{ b.campus }}"
            data-name="{{ b.name|lower }}"
-           data-rooms="{{ b.classrooms_count }}">
+           data-rooms="{{ b.published_room_count }}">
         <a class="text-decoration-none text-reset" href="{% url 'classroom_list_by_building' b.slug %}">
           <div class="tile h-100">
             <div class="ratio ratio-16x9 bg-light">
-              {% if b.preview %}
-                <img src="{{ b.preview }}" alt="Preview of {{ b.name }}" class="img-cover" loading="lazy" decoding="async">
-              {% endif %}
+              {% if b.preview_file %}
+                    <img src="{{ b.preview_file.url }}" class="img-cover" alt="{{ b.name }}" loading="lazy" decoding="async">
+              {% else %}
+                  <div class="img-cover" style="background:#f3f4f6;"></div>{% endif %}
+
             </div>
             <div class="px-3 pb-2 pt-2">
               <div class="tile-title">{{ b.name }}</div>
-            <div class="tile-sub">{{ b.classrooms_count }} room{% if b.classrooms_count != 1 %}s{% endif %} · {{ b.get_campus_display }}</div>
+             <div class="tile-sub">{{ b.published_room_count }} room{% if b.published_room_count != 1 %}s{% endif %} · {{ b.get_campus_display }}</div>
 
             </div>
           </div>
@@ -135,8 +137,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     if (mode){
       visible.sort((a,b) => {
-        if (mode === 'rooms-desc') return (b.getAttribute('data-rooms')||0) - (a.getAttribute('data-rooms')||0);
-        if (mode === 'rooms-asc')  return (a.getAttribute('data-rooms')||0) - (b.getAttribute('data-rooms')||0);
+        const ar = Number(a.getAttribute('data-rooms')||0);
+        const br = Number(b.getAttribute('data-rooms')||0);
+        if (mode === 'rooms-desc') return br - ar;
+        if (mode === 'rooms-asc')  return ar - br;
         if (mode === 'name-asc') {
           const na = a.getAttribute('data-name') || '';
           const nb = b.getAttribute('data-name') || '';

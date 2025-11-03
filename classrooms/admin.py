@@ -5,11 +5,15 @@ from django import forms
 class PanoramaInline(admin.TabularInline):
     model = Panorama
     extra = 0
+    fields = ("image_file", "preview_file", "yaw", "pitch", "hfov")
+
 
 
 class ClassroomPhotoInline(admin.TabularInline):
     model = ClassroomPhoto
     extra = 0
+    fields = ("image_file",)
+
 
 class ClassroomAdminForm(forms.ModelForm):
     class Meta:
@@ -22,6 +26,8 @@ class ClassroomAdminForm(forms.ModelForm):
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
+    form = ClassroomAdminForm
+
     list_display = ("building", "room_number", "capacity", "is_published", "updated_at")
     list_filter = ("building", "is_published",
                    "voice_amplification", "class_capture", "instructor_pc_equipped", "assistive_listening_device")
@@ -29,7 +35,7 @@ class ClassroomAdmin(admin.ModelAdmin):
     fields = (
         "building", "room_number", "external_id", "is_published",
         "capacity", "summary",
-        "preview_image",   
+        "preview_image_file",
         "voice_amplification",
         "podium_microhpone", "handheld_microphone","ceiling_microphone", "lavalier_microphone",
         "web_conference_camera","ceiling_camera","document_camera",

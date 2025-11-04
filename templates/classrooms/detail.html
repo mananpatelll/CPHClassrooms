@@ -12,7 +12,7 @@
   .kv-row{display:flex; justify-content:space-between; gap:.75rem; padding:.4rem .25rem; border-bottom:1px dashed #eee;}
   .kv-row .k{color:#6c757d; min-width:48%; }
   .kv-row .v{font-weight:500;}
-  .sidebar-thumbs { position: sticky; top: 80px; }
+  .sidebar-thumbs { position: sticky; top: 80px; display:flex; flex-direction:column; gap:1rem; }
   .sidebar-thumbs img{ width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid #ddd; cursor:pointer; }
   .sidebar-thumbs img.active{ outline:3px solid #0d6efd }
   #pano-wrap{ position:relative; width:100%; border:1px solid #ddd; border-radius:8px; overflow:hidden; aspect-ratio:3/1; min-height:320px; }
@@ -73,7 +73,7 @@
 
   <div class="row g-3">
 <aside class="col-12 col-lg-3 order-2 order-lg-1">
-  <div class="sidebar-thumbs vstack gap-3">
+  <div class="sidebar-thumbs">
     {% if photos %}
       {% for ph in photos %}
         {% if ph.image_file %}
@@ -178,8 +178,7 @@
               </a>
             {% endif %}
           </div>
-        </div>
-      </div>
+       
    <!-- Photo Lightbox -->
         <div class="modal fade" id="photoLightbox" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -231,7 +230,8 @@
 
       
     </section>
-
+  </div>
+</div>
 {% endblock %}
 {% block body_end %}
 <script src="https://unpkg.com/pannellum@2.5.6/build/pannellum.js" defer></script>

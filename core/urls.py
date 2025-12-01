@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.urls import path
-from classrooms.views import buildings_index, classroom_list_by_building, classroom_detail
+from classrooms.views import buildings_index, classroom_list_by_building, classroom_detail, classroom_detail_pk
 from django.http import HttpResponse
 
 
@@ -33,11 +33,12 @@ urlpatterns = [
     path("buildings/", cviews.buildings_index, name="buildings_index"),     # Buildings:
 
     path("buildings/<slug:slug>/", cviews.classroom_list_by_building, name="classroom_list_by_building"),
-    path("classrooms/<int:pk>/", cviews.classroom_detail, name="classroom_detail"), # Classroom details
-
-
+    path("buildings/<slug:slug>/<str:room_number>/", cviews.classroom_detail, name="classroom_detail"),
+    path("classrooms/<int:pk>/", cviews.classroom_detail_pk, name="classroom_detail_pk"), 
     
-    path('admin/', admin.site.urls),  # enable Django admin
+    path(settings.ADMIN_URL, admin.site.urls),
+    path("healthz/", lambda r: HttpResponse("ok"), name="healthz")
+
 ]
 
 if settings.DEBUG and settings.STORAGE_BACKEND == "local":

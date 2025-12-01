@@ -92,7 +92,7 @@ class Classroom(models.Model):
     ceiling_camera = models.BooleanField(default=False, verbose_name="Wall Mounted Camera (Zoom)")
     document_camera = models.BooleanField(default=False, verbose_name="Document Camera")
     touchscreen_presentation = models.BooleanField(default=False, verbose_name = "Smart Touchscreen Presentation")
-
+    lecd = models.BooleanField(default=False, verbose_name= "LED/LCD Display")
         
     # Presentation/ desk features
         #Presentation Features 

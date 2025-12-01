@@ -100,9 +100,9 @@
         <span class="filter-pill" data-wireless="kramer">Kramer</span>
         <span class="filter-pill" data-wireless="apple_tv">Apple&nbsp;TV</span>
         <span class="filter-pill" data-wireless="screenbeam">ScreenBeam</span>
-        <span class="filter-pill" data-flag="class_capture">Recording</span>
+        <span class="filter-pill" data-flag="touchscreen_presentation">Touchscreen Presentation</span>
         <span class="filter-pill" data-flag="web_conference_camera">Zoom Camera</span>
-        <span class="filter-pill" data-flag="instructor_pc_equipped">Instructor PC</span>
+        <span class="filter-pill" data-flag="interactive_display">Interactive display</span>
         <span id="resultsMeta" class="text-muted small ms-2"></span>
         <button id="clearFilters" class="btn btn-sm btn-outline-secondary ms-1" type="button">Clear</button>
         <div class="ms-auto d-flex align-items-center gap-2">
@@ -124,9 +124,9 @@
                data-capacity="{{ r.capacity }}"
                data-room="{{ r.room_number|default_if_none:'' }}"
                data-wireless="{{ r.wireless_presentation|join:','|lower }}"
-               data-class_capture="{{ r.class_capture|yesno:'1,0' }}"
+               data-touchscreen_presentation="{{ r.touchscreen_presentation|yesno:'1,0' }}"
                data-web_conference_camera="{{ r.web_conference_camera|yesno:'1,0' }}"
-               data-instructor_pc_equipped="{{ r.instructor_pc_equipped|yesno:'1,0' }}">
+               data-interactive_display="{{ r.interactive_display|yesno:'1,0' }}">
               <a class="text-decoration-none text-reset" href="{% url 'classroom_detail' r.building.slug r.room_number %}">
               <div class="tile h-100">
                 <div class="ratio ratio-16x9">
@@ -154,8 +154,8 @@
                   <div class="tile-title">{{ r.building.name }} {{ r.room_number }}</div>
                   <div class="tile-sub d-flex justify-content-center gap-2 flex-wrap">
                     <span>Capacity: {{ r.capacity }}</span>
-                    {% if r.class_capture %}<span class="badge text-bg-light">Panopto</span>{% endif %}
-                    {% if r.instructor_pc_equipped %}<span class="badge text-bg-light">Instructor PC</span>{% endif %}
+                    {% if r.touchscreen_presentation %}<span class="badge text-bg-light">Touchscreen Presentation Display</span>{% endif %}
+                    {% if r.interactive_display %}<span class="badge text-bg-light">Interactive display</span>{% endif %}
                   </div>
                 </div>
               </div>

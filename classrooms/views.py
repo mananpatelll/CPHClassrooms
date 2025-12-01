@@ -76,13 +76,12 @@ def classroom_detail(request, slug, room_number):
         "Accessibility & Environment": ["assistive_listening_device","env_light","hdesk","stage","privacy_panel","windows","door_windows"],
         "Audio": ["voice_amplification","podium_microhpone","handheld_microphone","ceiling_microphone","lavalier_microphone"],
         "Video": ["web_conference_camera","ceiling_camera","document_camera","projectors"],
-        "Presentation": ["wireless_presentation","interactive_display","instructor_monitor","class_capture", "pc_type"], #"instructor_pc_equipped"
+        "Presentation": ["wireless_presentation","interactive_display","instructor_monitor","class_capture", "pc_type", "touchscreen_presentation"], #"instructor_pc_equipped"
         "Boards": ["chalk_board","whiteboards_count"],
     }
     highlights = []
     if room.class_capture: highlights.append("Panopto capture")
     if room.web_conference_camera: highlights.append("Web conferencing")
-   # if room.instructor_pc_equipped: highlights.append("Instructor PC")
     if room.interactive_display: highlights.append("Interactive display")
     if room.wireless_presentation: highlights.append("Wireless: " + room.get_wireless_presentation_display())
     return render(request, "classrooms/detail.html", {

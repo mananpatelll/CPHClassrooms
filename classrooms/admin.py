@@ -41,8 +41,8 @@ class ClassroomAdmin(admin.ModelAdmin):
         "podium_microhpone", "handheld_microphone","ceiling_microphone", "lavalier_microphone",
         "web_conference_camera","ceiling_camera","document_camera",
         
-        "wireless_presentation","instructor_monitor", "interactive_display",  #"instructor_pc_equipped"
-        "class_capture","pc_type",
+        "wireless_presentation","instructor_monitor", "interactive_display",#"instructor_pc_equipped"
+        "class_capture","pc_type","touchscreen_presentation",
         "env_light","assistive_listening_device","hdesk",
         "chalk_board","whiteboards_count","projectors","projector_model","display_model",
         "book_url"

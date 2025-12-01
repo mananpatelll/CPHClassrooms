@@ -30,20 +30,21 @@ class ClassroomAdmin(admin.ModelAdmin):
 
     list_display = ("building", "room_number", "capacity", "is_published", "updated_at")
     list_filter = ("building", "is_published",
-                   "voice_amplification", "class_capture", "instructor_pc_equipped", "assistive_listening_device")
+                   "voice_amplification", "class_capture", "assistive_listening_device") #"instructor_pc_equipped",
     search_fields = ("room_number", "summary", "building__name")
     fields = (
-        "building", "room_number", "external_id", "is_published",
-        "capacity", "summary",
+        "building","room_type", "room_number", "external_id", "is_published", "stage", "multilevel_podium",
+        "privacy_panel","windows","door_windows","lock",
+        "capacity", "summary","seating_type",
         "preview_image_file",
         "voice_amplification",
         "podium_microhpone", "handheld_microphone","ceiling_microphone", "lavalier_microphone",
         "web_conference_camera","ceiling_camera","document_camera",
         
-        "wireless_presentation", "instructor_pc_equipped","instructor_monitor", "interactive_display",
-        "class_capture",
+        "wireless_presentation","instructor_monitor", "interactive_display",  #"instructor_pc_equipped"
+        "class_capture","pc_type",
         "env_light","assistive_listening_device","hdesk",
-        "chalk_board","whiteboards_count","projectors",
+        "chalk_board","whiteboards_count","projectors","projector_model","display_model",
         "book_url"
     )
     inlines = [PanoramaInline, ClassroomPhotoInline]

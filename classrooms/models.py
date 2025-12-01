@@ -44,21 +44,41 @@ class Classroom(models.Model):
         ("apple_tv", "Apple TV"),
         ("screenbeam", "ScreenBeam"),
     ]
+    SEATING_CHOICES = [
+        ("tables and chairs", "Tables and Chairs"),
+        ("tablet armchairs", "Tablet armchairs")
+    ]
+    
+    PC_TYPE = [
+        ("windows", "Windows PC"),
+        ("MacOs", "MacOs (Apple Mac)")
+    ]
     # identity
     external_id = models.CharField(max_length=120, unique=True)
     building = models.ForeignKey(Building, related_name="classrooms", on_delete=models.PROTECT)
     room_number = models.CharField(max_length=20)
     
+    
       # NEW: card preview image (optional)
     preview_image_file = models.ImageField(upload_to="classrooms/previews/%Y/%m/%d/", blank=True, null=True)
-
-
-    
+    room_type = models.CharField(max_length=10, blank=True, verbose_name = "Room type")
     capacity = models.PositiveIntegerField(default=0, verbose_name="Capacity")
     summary = models.CharField(max_length=200, blank=True, verbose_name="Summary")
-    is_published = models.BooleanField(default=True, verbose_name="Published")
+    seating_type = MultiSelectField(choices=SEATING_CHOICES, blank=True, verbose_name = "Seating Type")
+    is_published = models.BooleanField(default=False, verbose_name="Published")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
-
+    
+    #Classroom config
+    windows = models.BooleanField(default=False, verbose_name = "Windows in classroom")
+    stage = models.BooleanField(default=False, verbose_name= "Stage")
+    multilevel_podium = models.BooleanField(default=False, verbose_name = "Level 2 podium or Level 3 podium")
+    privacy_panel = models.BooleanField(default=False, verbose_name = "Privacy panel for teacher desk")
+    env_light = models.BooleanField(default=False, verbose_name="Environmental Controls (Lighting)")
+    assistive_listening_device = models.BooleanField(default=False, verbose_name="Assistive Listening Device")
+    hdesk = models.BooleanField(default=False, verbose_name = "Height adjustable desk/podium")
+    door_windows = models.BooleanField(default=False, verbose_name = "Door with window")
+    lock = models.CharField(max_length=50, verbose_name = "Lock Type", blank=True)
+    
     # Microhpones/Speakers and cameras 
         #Speakers
     voice_amplification = models.BooleanField(default=False, verbose_name="Voice Amplification (Speakers)")
@@ -77,18 +97,18 @@ class Classroom(models.Model):
     # Presentation/ desk features
         #Presentation Features 
     wireless_presentation = MultiSelectField(choices=WIRELESS_CHOICES, blank=True, verbose_name= "Wireless Presentation")
-    instructor_pc_equipped = models.BooleanField(default=False, verbose_name="Instructor PC Equipped")
+    #instructor_pc_equipped = models.BooleanField(default=False, verbose_name="Instructor PC Equipped")
     interactive_display = models.BooleanField(default=False, verbose_name="Interactive Display")
     instructor_monitor = models.BooleanField(default=False, verbose_name="Instructor Monitor")
     class_capture = models.BooleanField(default=False, verbose_name="Class Capture (Panopto)")
-    env_light = models.BooleanField(default=False, verbose_name="Environmental Controls (Lighting)")
-    assistive_listening_device = models.BooleanField(default=False, verbose_name="Assistive Listening Device")
-    hdesk = models.BooleanField(default=False, verbose_name = "Height adjustable desk/podium")
+    pc_type = MultiSelectField(choices=PC_TYPE,blank = True, verbose_name = "Operating System")
+
 
     # Boards and Screens 
     chalk_board = models.PositiveIntegerField(default=0, verbose_name="Chalkboards")
     whiteboards_count = models.PositiveIntegerField(default=0, verbose_name="Whiteboards")
     projectors = models.PositiveIntegerField(default=0, verbose_name="Projectors")
+    
 
     
 
@@ -98,6 +118,10 @@ class Classroom(models.Model):
         help_text="Booking URL from 25Live",
         verbose_name="Booking URL"
     )
+    
+    #admin info 
+    projector_model = models.CharField(max_length=100, verbose_name = "Projector Model", blank=True)
+    display_model = models.CharField(max_length =100, blank=True, verbose_name="Display Model and size")
 
     class Meta:
         indexes = [

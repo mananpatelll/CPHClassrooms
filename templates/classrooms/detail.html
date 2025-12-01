@@ -116,8 +116,8 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="p-3 border rounded-3 h-100">
-            <div class="kv-row"><div class="k">Wireless</div><div class="v">{{ room.get_wireless_presentation_display|default:"None" }}</div></div>
-            <div class="kv-row"><div class="k">Instructor PC</div><div class="v">{{ room.instructor_pc_equipped|yesno:"Yes,No" }}</div></div>
+            <div class="kv-row"><div class="k">Seating type</div><div class="v">{{ room.seating_type|default:"None" }}</div></div>
+            <div class="kv-row"><div class="k">Instructor PC</div><div class="v">{{ room.pc_type}}</div></div>
             <div class="kv-row"><div class="k">Recording</div><div class="v">{{ room.class_capture|yesno:"Yes,No" }}</div></div>
           </div>
         </div>

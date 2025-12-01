@@ -17,3 +17,6 @@ Thumbs.db
 Notes/
 staticfiles/
 media/
+.env copy
+base.txt
+.gitignore

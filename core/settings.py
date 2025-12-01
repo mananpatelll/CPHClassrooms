@@ -25,6 +25,8 @@ STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")  # "s3" or "local"
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+ADMIN_URL = os.getenv("DJANGO_ADMIN_URL", "admin/")
+
 
 
 # --- Caching & Sessions -----------------------------------------
@@ -57,17 +59,15 @@ else:
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-insecure-key')  # override in prod
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
 DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
+ssl_require = os.getenv("SSL_REQUIRE", "True" if not DEBUG else "False").lower() == "true"
 
-
-
+# Media files
 MEDIA_URL = os.getenv('DJANGO_MEDIA_URL', '/media/')
 MEDIA_ROOT = BASE_DIR / 'media'  # use S3 in prod via django-storages (see notes)
 
 
 ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS","").split(",") if h]
-
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
 
@@ -87,6 +87,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -118,16 +119,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-
-
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",  # fallback if DATABASE_URL isn't set
-        conn_max_age=60,
+        conn_max_age=300,
+        ssl_require=ssl_require,
     )
 }
-
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+DATABASES["default"]["ATOMIC_REQUESTS"] = True 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -152,6 +152,21 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
+    "loggers": {
+        "django.security.DisallowedHost": {
+            "handlers": ["console"], "level": "INFO", "propagate": False
+        }
+    },
+}
+
+
+# Media files storage
 if STORAGE_BACKEND == "s3":
     AWS_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY")
     AWS_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_KEY")
@@ -172,19 +187,19 @@ else:
     MEDIA_URL = "/media/"
     STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
 
-# reverse proxy sanity
+# reverse proxy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
+# https://docs.djangoproject.com/en/5.2/topics/i18n/  
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -193,7 +208,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

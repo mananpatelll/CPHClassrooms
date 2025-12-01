@@ -1,10 +1,13 @@
 # classrooms/views.py
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from .models import Building, Classroom
-
+from django.views.decorators.cache import cache_page
 # classrooms/views.py
 from django.db.models import Count, Q
 
+
+@cache_page(300) # Cache for 5 minutes
 def buildings_index(request):
     buildings = (
         Building.objects
@@ -14,6 +17,7 @@ def buildings_index(request):
     return render(request, "classrooms/buildings.html", {"buildings": buildings})
 
 
+@cache_page(300)
 def classroom_list_by_building(request, slug):
     building = get_object_or_404(Building, slug=slug)
     rooms = (Classroom.objects
@@ -25,10 +29,12 @@ def classroom_list_by_building(request, slug):
 
     return render(request, "classrooms/list.html", {"building": building, "rooms": rooms,  "resources": list(resources)})
 
-def classroom_detail(request, pk):
+
+@cache_page(300)
+def classroom_detail(request, slug, room_number):
     room = get_object_or_404(
         Classroom.objects.select_related("building").prefetch_related("panoramas", "photos"),
-        pk=pk, is_published=True
+        building__slug = slug, room_number = room_number, is_published=True
     )
     feature_fields = [
         # Microhpones/Speakers and cameras 
@@ -81,5 +87,15 @@ def classroom_detail(request, pk):
         "panos": room.panoramas.all(),
         "photos": room.photos.all(),
     })
-
+    return render(request, "classrooms/detail.html", {"room": room})
     
+@cache_page(300)
+def classroom_detail_pk(request, pk):
+    room = get_object_or_404(
+        Classroom.objects.select_related("building"),
+        pk=pk, is_published=True
+    )
+    return redirect(
+        reverse("classroom_detail", args=[room.building.slug, room.room_number]),
+        permanent=True
+    )

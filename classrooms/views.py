@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_page
 from django.db.models import Count, Q
 
 
-@cache_page(300) # Cache for 5 minutes
+#@cache_page(300) # Cache for 5 minutes
 def buildings_index(request):
     buildings = (
         Building.objects
@@ -17,7 +17,7 @@ def buildings_index(request):
     return render(request, "classrooms/buildings.html", {"buildings": buildings})
 
 
-@cache_page(300)
+#@cache_page(300)
 def classroom_list_by_building(request, slug):
     building = get_object_or_404(Building, slug=slug)
     rooms = (Classroom.objects
@@ -30,7 +30,7 @@ def classroom_list_by_building(request, slug):
     return render(request, "classrooms/list.html", {"building": building, "rooms": rooms,  "resources": list(resources)})
 
 
-@cache_page(300)
+#@cache_page(300)
 def classroom_detail(request, slug, room_number):
     room = get_object_or_404(
         Classroom.objects.select_related("building").prefetch_related("panoramas", "photos"),
@@ -53,7 +53,7 @@ def classroom_detail(request, slug, room_number):
         # Presentation/ desk features
                 #Presentation Features 
         "wireless_presentation",
-        "instructor_pc_equipped",
+        #"instructor_pc_equipped",
         "instructor_monitor",
         "interactive_display",
         "class_capture",
@@ -61,22 +61,28 @@ def classroom_detail(request, slug, room_number):
         "assistive_listening_device",
         'hdesk',
 
-        # Boards and Screens 
+        # eniroment
         "chalk_board",
         "whiteboards_count",
         "projectors",
+        "stage",
+        "privacy_panel",
+        "windows",
+        "door_windows",
+        
+        "pc_type",
     ]
     feature_groups = {
+        "Accessibility & Environment": ["assistive_listening_device","env_light","hdesk","stage","privacy_panel","windows","door_windows"],
         "Audio": ["voice_amplification","podium_microhpone","handheld_microphone","ceiling_microphone","lavalier_microphone"],
         "Video": ["web_conference_camera","ceiling_camera","document_camera","projectors"],
-        "Presentation": ["wireless_presentation","instructor_pc_equipped","interactive_display","instructor_monitor","class_capture"],
-        "Accessibility & Environment": ["assistive_listening_device","env_light","hdesk"],
+        "Presentation": ["wireless_presentation","interactive_display","instructor_monitor","class_capture", "pc_type"], #"instructor_pc_equipped"
         "Boards": ["chalk_board","whiteboards_count"],
     }
     highlights = []
     if room.class_capture: highlights.append("Panopto capture")
     if room.web_conference_camera: highlights.append("Web conferencing")
-    if room.instructor_pc_equipped: highlights.append("Instructor PC")
+   # if room.instructor_pc_equipped: highlights.append("Instructor PC")
     if room.interactive_display: highlights.append("Interactive display")
     if room.wireless_presentation: highlights.append("Wireless: " + room.get_wireless_presentation_display())
     return render(request, "classrooms/detail.html", {
@@ -89,7 +95,7 @@ def classroom_detail(request, slug, room_number):
     })
     return render(request, "classrooms/detail.html", {"room": room})
     
-@cache_page(300)
+#@cache_page(300)
 def classroom_detail_pk(request, pk):
     room = get_object_or_404(
         Classroom.objects.select_related("building"),

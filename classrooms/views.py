@@ -75,7 +75,7 @@ def classroom_detail(request, slug, room_number):
     feature_groups = {
         "Accessibility & Environment": ["assistive_listening_device","env_light","hdesk","stage","privacy_panel","windows","door_windows"],
         "Audio": ["voice_amplification","podium_microhpone","handheld_microphone","ceiling_microphone","lavalier_microphone"],
-        "Video": ["web_conference_camera","ceiling_camera","document_camera","projectors"],
+        "Video": ["web_conference_camera","ceiling_camera","document_camera","projectors",'lecd'],
         "Presentation": ["wireless_presentation","interactive_display","instructor_monitor","class_capture", "pc_type", "touchscreen_presentation"], #"instructor_pc_equipped"
         "Boards": ["chalk_board","whiteboards_count"],
     }
